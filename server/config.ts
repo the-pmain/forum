@@ -27,3 +27,16 @@ export const config = {
 
 export const isProduction = config.nodeEnv === "production";
 export const hasSupabase = Boolean(config.supabaseUrl && config.supabaseServiceRoleKey);
+
+const WEAK_SECRETS = new Set(["", "dev-only-session-secret-change-me", "change-me-to-a-long-random-string", "change-me"]);
+const WEAK_PASSWORDS = new Set(["", "dev-admin", "change-me", "password", "admin"]);
+
+export function assertProductionConfig(): void {
+  if (!isProduction) return;
+  if (!process.env.SESSION_SECRET || WEAK_SECRETS.has(process.env.SESSION_SECRET) || process.env.SESSION_SECRET.length < 24) {
+    throw new Error("Set SESSION_SECRET to a random string of at least 24 characters before starting in production.");
+  }
+  if (!process.env.ADMIN_PASSWORD || WEAK_PASSWORDS.has(process.env.ADMIN_PASSWORD) || process.env.ADMIN_PASSWORD.length < 8) {
+    throw new Error("Set ADMIN_PASSWORD to a strong password before starting in production.");
+  }
+}

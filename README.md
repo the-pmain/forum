@@ -26,7 +26,21 @@ npm run build        # typecheck, Vite build, SSG
 npm start            # production: Express serves dist + /api
 ```
 
-Railway: `npm run build`, then `npm start`.
+## Railway
+
+The service is a single Express process: Railpack runs `npm run build`, then `npm start` serves `dist` and `/api` on `0.0.0.0:$PORT`. `RAILPACK_NO_SPA=1` stops Railpack from treating the Vite app as a static Caddy site.
+
+In the Railway service, set:
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `SESSION_SECRET` | yes | Random string, 24+ characters |
+| `ADMIN_PASSWORD` | yes | Admin sign-in at `/admin` |
+| `SUPABASE_URL` | yes for persistence | Project URL, with or without `/rest/v1` |
+| `SUPABASE_SERVICE_ROLE_KEY` | yes for persistence | Server-only; never the anon key |
+| `NODE_ENV` | set by Railway | `production` |
+
+Without Supabase the directory still boots from `data/seed.json`, but every deploy wipes writes and comments (unless the comments table exists and Supabase is configured). Health check: `GET /api/health`.
 
 ## Admin
 
