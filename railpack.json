@@ -1,9 +1,14 @@
 {
   "$schema": "https://schema.railpack.com",
+  "provider": "node",
   "packages": {
     "node": "22"
   },
   "deploy": {
-    "startCommand": "npm start"
+    "startCommand": "npm start",
+    "inputs": [
+      "...",
+      { "step": "build", "include": ["dist"] }
+    ]
   }
 }

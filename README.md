@@ -28,7 +28,7 @@ npm start            # production: Express serves dist + /api
 
 ## Railway
 
-The service is a single Express process: Railpack runs `npm run build`, then `npm start` serves `dist` and `/api` on `0.0.0.0:$PORT`. `RAILPACK_NO_SPA=1` stops Railpack from treating the Vite app as a static Caddy site.
+The service is a single Express process: Railpack runs `npm run build`, then `npm start` serves `dist` and `/api` on `0.0.0.0:$PORT`. `dist` is produced at build time and copied into the runtime image; it is not committed. Do not set `RAILPACK_SPA_OUTPUT_DIR` or Railway will serve the UI with Caddy and drop `/api`.
 
 In the Railway service, set:
 
