@@ -40,6 +40,7 @@ export function exportCsv(records: Provider[], view: DirectoryView) {
   const withLimits = view.category === "Ramps";
   const withLoans = records.some((item) => item.category === "Loans & credit");
   const withMining = records.some((item) => item.category === "Mining Solutions");
+  const withP2p = records.some((item) => item.category === "P2P");
   const headers = [
     "Provider / product",
     "Category",
@@ -78,6 +79,9 @@ export function exportCsv(records: Provider[], view: DirectoryView) {
   if (withMining) {
     headers.push("Mining type", "Rewards", "Withdrawal rating", "Withdrawal speed", "Payout method", "KYC");
   }
+  if (withP2p) {
+    headers.push("P2P model", "Custody", "KYC", "Direct delivery", "Fiat claimed", "Assets claimed", "Escrow");
+  }
   headers.push("Age / product sources", "Country / service sources", "Source review date", "Review scope");
 
   const rows = records.map((provider) => {
@@ -114,6 +118,18 @@ export function exportCsv(records: Provider[], view: DirectoryView) {
         mining?.withdrawalSpeed || "",
         mining?.payoutMethod || "",
         mining?.kyc || "",
+      );
+    }
+    if (withP2p) {
+      const p2p = provider.p2p;
+      row.push(
+        p2p?.productType || "",
+        p2p?.custody || "",
+        p2p?.kyc || "",
+        p2p?.directDelivery ? "Yes" : "",
+        p2p?.fiat || "",
+        p2p?.assets || "",
+        p2p?.escrow || "",
       );
     }
     row.push(provider.sources.age.join("\n"), provider.sources.service.join("\n"), provider.sourceDate, provider.reviewNote);

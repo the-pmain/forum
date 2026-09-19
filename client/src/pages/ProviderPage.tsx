@@ -99,7 +99,7 @@ export function ProviderPage({
           <div className="avatar">{initials(provider.name)}</div>
           <div>
             <h2>{provider.name}</h2>
-            <span className="category-tag">{provider.lending?.type || provider.mining?.productType || categoryInfo(provider.category).label}</span>
+            <span className="category-tag">{provider.lending?.type || provider.mining?.productType || provider.p2p?.productType || categoryInfo(provider.category).label}</span>
             {provider.verified ? <span className="verified-mark"><Icon name="badgeCheck" /> {t("admin.verifiedMark")}</span> : null}
             {admin && provider.hidden ? <span className="hidden-mark"><Icon name="eyeOff" /> {t("admin.hiddenMark")}</span> : null}
           </div>

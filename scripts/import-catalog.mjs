@@ -14,10 +14,16 @@ const europeCandidates = [
   path.join(root, "../.cursor/projects/c-Users-2-projects-forum/uploads/c__Users_2_Downloads_nordics-germany-consumer-credit-database-L1-L13645-0.md"),
   "C:/Users/2/.cursor/projects/c-Users-2-projects-forum/uploads/c__Users_2_Downloads_nordics-germany-consumer-credit-database-L1-L13645-0.md",
 ];
+const p2pCandidates = [
+  path.join("C:/Users/2/Downloads/european-p2p-crypto-services-database.md"),
+  path.join(root, "../.cursor/projects/c-Users-2-projects-forum/uploads/c__Users_2_Downloads_european-p2p-crypto-services-database-L1-L606-0.md"),
+  "C:/Users/2/.cursor/projects/c-Users-2-projects-forum/uploads/c__Users_2_Downloads_european-p2p-crypto-services-database-L1-L606-0.md",
+];
 
 const NL_PACK_ID = "nl-consumer-credit-2026-09-19-v1";
 const EUROPE_PACK_ID = "nordics-germany-consumer-credit-2026-09-19-v1";
 const MINING_PACK_ID = "mining-solutions-europe-2026-09-19-v1";
+const P2P_PACK_ID = "europe-p2p-crypto-2026-09-19-v1";
 const COUNTRIES = ["Netherlands", "Germany", "Denmark", "Finland", "Norway", "Sweden"];
 const ISO_COUNTRY = {
   NL: "Netherlands",
@@ -147,7 +153,7 @@ function readMarkdown(candidates, label) {
   throw new Error(`${label} markdown not found.`);
 }
 
-function parseJsonRecords(markdown, expected, label) {
+function parseJsonRecords(markdown, expected, label, keyCount = 41) {
   const records = [];
   for (const match of markdown.matchAll(/```json\s*\n([\s\S]*?)\n```/g)) {
     records.push(JSON.parse(match[1]));
@@ -157,12 +163,23 @@ function parseJsonRecords(markdown, expected, label) {
   }
   const ids = new Set();
   for (const record of records) {
-    if (!record.id || ids.has(record.id) || Object.keys(record).length !== 41) {
-      throw new Error(`Invalid ${label} record ${record.id || "(missing id)"}.`);
+    if (!record.id || ids.has(record.id) || Object.keys(record).length !== keyCount) {
+      throw new Error(`Invalid ${label} record ${record.id || "(missing id)"} (${Object.keys(record).length} fields).`);
     }
     ids.add(record.id);
   }
   return records;
+}
+
+function humanizeClaim(value) {
+  if (value == null || value === "") return "";
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  return String(value).replaceAll("_", " ");
+}
+
+function claimedList(values, fallback) {
+  const items = Array.isArray(values) ? values.map((item) => String(item || "").trim()).filter(Boolean) : [];
+  return items.length ? items.join(", ") : fallback;
 }
 
 function loanType(record) {
@@ -468,6 +485,118 @@ function mapCatalogRecord(record, origin) {
     };
   }
   return provider;
+}
+
+function mapP2pRecord(record) {
+  if (record.category !== "p2p_crypto") throw new Error(`Unexpected P2P category ${record.category} (${record.id}).`);
+  const pub = publicationStatus(record);
+  const restrictionByCountry = new Map();
+  for (const item of record.country_restrictions_claimed || []) {
+    const country = ISO_COUNTRY[item?.country];
+    if (country) restrictionByCountry.set(country, item);
+  }
+  const region = record.region_claimed || "Europe; country dependent";
+  const countries = Object.fromEntries(COUNTRIES.map((country) => {
+    const restriction = restrictionByCountry.get(country);
+    if (restriction) {
+      return [country, {
+        status: "Restricted",
+        note: clip([
+          humanizeClaim(restriction.claim) || "Country restriction claimed.",
+          restriction.effective_date_claimed ? `Claimed effective ${restriction.effective_date_claimed}.` : "",
+          "Not independently verified.",
+          `Region claimed: ${region}.`,
+        ].filter(Boolean).join(" "), 30000),
+      }];
+    }
+    return [country, {
+      status: "Check",
+      note: clip([
+        `Claimed region: ${region}. Country availability was not independently verified.`,
+        record.main_limitation || "",
+        "Listing is not a finding that the platform is available or lawful here.",
+      ].filter(Boolean).join(" "), 30000),
+    }];
+  }));
+  const holdDays = Array.isArray(record.withdrawal_hold_days_claimed)
+    ? record.withdrawal_hold_days_claimed.filter((item) => item != null)
+    : [];
+  const fee = record.fee_percent_max_claimed == null
+    ? "Not verified"
+    : [
+      `Up to about ${record.fee_percent_max_claimed}% claimed`,
+      record.fee_is_approximate === true ? "(approximate)" : "",
+      record.fee_basis ? `(${humanizeClaim(record.fee_basis)})` : "",
+    ].filter(Boolean).join(" ");
+  const amount = record.transaction_amount_min == null && record.transaction_amount_max == null
+    ? "Not verified"
+    : [
+      record.transaction_currency,
+      record.transaction_amount_min != null ? `from ${record.transaction_amount_min}` : "",
+      record.transaction_amount_max != null ? `up to ${record.transaction_amount_max}` : "",
+    ].filter(Boolean).join(" ");
+  const aliases = Array.isArray(record.aliases) ? record.aliases.filter(Boolean) : [];
+  const regulatory = (record.regulatory_claims || [])
+    .map((item) => [item?.as_of_claimed ? `As of ${item.as_of_claimed}:` : "", item?.claim].filter(Boolean).join(" "))
+    .filter(Boolean);
+  const nonCustodial = record.custody_model_claimed === "non_custodial"
+    || String(record.subcategory || "").includes("non_custodial");
+  return {
+    id: record.id,
+    name: clip(record.product_name || record.provider, 120),
+    category: "P2P",
+    website: safeURL(record.website),
+    service: clip([
+      record.product_name,
+      humanizeClaim(record.subcategory),
+      aliases.length ? `Also known as ${aliases.join(", ")}.` : "",
+    ].filter(Boolean).join(" — "), 500),
+    countryFocus: "Europe",
+    countries,
+    limitations: clip([
+      record.main_limitation,
+      record.notes,
+      record.payment_method_notes,
+      holdDays.length ? `Claimed withdrawal/risk-control holds: ${holdDays.join("/")} days.` : "",
+      ...regulatory,
+    ].filter(Boolean).join(" "), 30000),
+    ageEligibility: "Not verified",
+    ageEvidence: "Not verified",
+    ageNotes: "",
+    upperAge: "Upper age was not supplied in the source. Null does not mean unrestricted.",
+    upperAgeStatus: "Not stated in source",
+    sources: { age: [], service: [] },
+    reviewNote: clip([
+      `European P2P crypto snapshot 19 September 2026 (finance-directory-p2p/1.0; ${record.publication_status}; ${record.verification_status}).`,
+      "Provider claims have not been independently verified. Websites were not in the source and were left empty.",
+      "Null amounts, ages, fees and country lists were not replaced with defaults.",
+      "Review-hold records stay out of the public new-offer list.",
+    ].join(" "), 30000),
+    sourceDate: record.last_checked || record.converted_on || "2026-09-19",
+    origin: "finance-directory-p2p/1.0",
+    notes: "",
+    updatedAt: "2026-09-19T12:00:00.000Z",
+    publicationStatus: pub,
+    tags: Array.isArray(record.tags) ? record.tags : [],
+    p2p: {
+      productType: clip(humanizeClaim(record.subcategory) || "P2P crypto", 30000),
+      custody: clip(humanizeClaim(record.custody_model_claimed) || "Not verified", 30000),
+      kyc: clip(humanizeClaim(record.platform_kyc_claimed) || "Not verified", 30000),
+      escrow: clip(humanizeClaim(record.escrow_model_claimed) || "Not verified", 30000),
+      counterparty: clip(humanizeClaim(record.counterparty_verification_claimed) || "Not specified", 30000),
+      fiat: clip(claimedList(record.fiat_currencies_claimed, record.fiat_notes || "Not enumerated in source"), 30000),
+      assets: clip(claimedList(record.crypto_assets_claimed, record.crypto_notes || "Not enumerated in source"), 30000),
+      payment: clip(claimedList(record.payment_methods_claimed, record.payment_method_notes || "Not enumerated in source"), 30000),
+      flow: clip((record.transaction_flow_claimed || []).filter(Boolean).join(" → ") || "Not enumerated in source", 30000),
+      largeTransactions: clip(humanizeClaim(record.large_transactions_claimed) || "Not verified", 30000),
+      fee,
+      holds: holdDays.length ? `${holdDays.join("/")} day holds claimed` : "Not enumerated in source",
+      amount,
+      directDelivery: record.direct_self_custody_delivery_claimed === true,
+      externalWallet: String(record.external_wallet_withdrawal_claimed || "").startsWith("yes"),
+      nonCustodial,
+    },
+  };
 }
 
 function miningProviders() {
@@ -786,10 +915,12 @@ function isMain() {
 if (isMain()) {
 const nlRecords = parseJsonRecords(readMarkdown(nlCandidates, "Netherlands consumer-credit"), 134, "NL");
 const europeRecords = parseJsonRecords(readMarkdown(europeCandidates, "Nordics/Germany consumer-credit"), 210, "Nordics/DE");
+const p2pRecords = parseJsonRecords(readMarkdown(p2pCandidates, "European P2P crypto"), 7, "P2P", 45);
 
 const nlProviders = uniqueProviders(nlRecords.map((record) => mapCatalogRecord(record, "nl-consumer-credit/1.0")));
 const europeProviders = uniqueProviders(europeRecords.map((record) => mapCatalogRecord(record, "europe-consumer-credit/1.0")));
 const mining = miningProviders();
+const p2p = uniqueProviders(p2pRecords.map(mapP2pRecord));
 const htmlSeed = extractHtmlSeed();
 const applied = [...new Set([
   ...(htmlSeed.appliedPacks || []),
@@ -799,9 +930,10 @@ const applied = [...new Set([
   NL_PACK_ID,
   EUROPE_PACK_ID,
   MINING_PACK_ID,
+  P2P_PACK_ID,
 ])];
 
-const mergedProviders = uniqueProviders([...(htmlSeed.providers || []), ...nlProviders, ...europeProviders, ...mining]);
+const mergedProviders = uniqueProviders([...(htmlSeed.providers || []), ...nlProviders, ...europeProviders, ...mining, ...p2p]);
 const seed = {
   ...htmlSeed,
   sourceNote: [
@@ -809,6 +941,7 @@ const seed = {
     "Netherlands consumer-credit catalogue mapped 19 September 2026 (nl-consumer-credit/1.0): 134 records. Review-hold and legacy/existing-only records are kept but excluded from new-offer results. Brokers and comparison platforms are Aggregators, not lenders.",
     "Finland, Sweden, Norway, Denmark and Germany consumer-credit catalogue mapped 19 September 2026 (europe-consumer-credit/1.0): 210 records. Amounts stay in EUR, SEK, NOK or DKK. hold_* records stay in the editorial queue. Brokers and comparison sites are Aggregators.",
     "Europe mining solutions added 19 September 2026 (GoMining, BitFuFu, Bitdeer, NiceHash). Country availability is Check until local terms are verified.",
+    "European P2P crypto services added 19 September 2026 (finance-directory-p2p/1.0, 7 records). Claims are user-supplied and not independently verified. All seven stay on review_hold. Websites, amounts and ages were not invented.",
   ].filter(Boolean).join(" "),
   appliedPacks: applied,
   providers: mergedProviders,
@@ -818,6 +951,7 @@ fs.mkdirSync(path.join(root, "data", "packs"), { recursive: true });
 fs.writeFileSync(path.join(root, "data", "packs", "nl-consumer-credit.json"), `${JSON.stringify({ packId: NL_PACK_ID, providers: nlProviders }, null, 2)}\n`);
 fs.writeFileSync(path.join(root, "data", "packs", "nordics-germany-consumer-credit.json"), `${JSON.stringify({ packId: EUROPE_PACK_ID, providers: europeProviders }, null, 2)}\n`);
 fs.writeFileSync(path.join(root, "data", "packs", "mining-solutions.json"), `${JSON.stringify({ packId: MINING_PACK_ID, providers: mining }, null, 2)}\n`);
+fs.writeFileSync(path.join(root, "data", "packs", "europe-p2p-crypto.json"), `${JSON.stringify({ packId: P2P_PACK_ID, providers: p2p }, null, 2)}\n`);
 fs.writeFileSync(path.join(root, "data", "seed.json"), `${JSON.stringify(seed)}\n`);
 
 const counts = {
@@ -825,8 +959,10 @@ const counts = {
   nl: nlProviders.length,
   europe: europeProviders.length,
   mining: mining.length,
+  p2p: p2p.length,
+  p2pHold: p2p.filter((item) => item.publicationStatus === "review_hold").length,
   merged: mergedProviders.length,
-  reviewHold: [...nlProviders, ...europeProviders].filter((item) => item.publicationStatus === "review_hold").length,
+  reviewHold: [...nlProviders, ...europeProviders, ...p2p].filter((item) => item.publicationStatus === "review_hold").length,
   europeHold: europeProviders.filter((item) => item.publicationStatus === "review_hold").map((item) => item.id),
   aggregators: europeProviders.filter((item) => item.category === "Aggregators").length,
   loans: europeProviders.filter((item) => item.category === "Loans & credit").length,

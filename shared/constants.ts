@@ -40,7 +40,7 @@ export const CATEGORY_INFO = [
   { name: "Mining Solutions", label: "Mining solutions", icon: "pickaxe", note: "BTC hashrate & withdrawals" },
   { name: "Ramps", label: "Crypto ramps", icon: "ramp", note: "Purchase limits & routes" },
   { name: "Exchanges", label: "Exchanges", icon: "exchange", note: "Crypto accounts & apps" },
-  { name: "P2P", label: "P2P services", icon: "users", note: "Peer-to-peer services" },
+  { name: "P2P", label: "P2P services", icon: "users", note: "Peer-to-peer crypto marketplaces" },
   { name: "Banks / payments", label: "Neobanks & payments", icon: "wallet", note: "Neobanks & payment apps" },
   { name: "Brokers", label: "Investing brokers", icon: "chart", note: "Investment platforms" },
   { name: "Aggregators", label: "Compare & arrange", icon: "layers", note: "Brokers, not lenders" },
@@ -134,6 +134,22 @@ export const MINING_TEXT_KEYS = [
   "holdingRestrictions",
   "bestFor",
 ] as const;
+export const P2P_TEXT_KEYS = [
+  "productType",
+  "custody",
+  "kyc",
+  "escrow",
+  "counterparty",
+  "fiat",
+  "assets",
+  "payment",
+  "flow",
+  "largeTransactions",
+  "fee",
+  "holds",
+  "amount",
+] as const;
+export const P2P_MODELS = ["exchange", "non_custodial"] as const;
 
 export const PAGE_SIZE = 12;
 export const CARD_PACK_ID = "cards-small-credit-2026-09-18-v1";
@@ -142,6 +158,7 @@ export const LOAN_PACK_ID = "loans-credit-2026-09-18-v1";
 export const NL_CREDIT_PACK_ID = "nl-consumer-credit-2026-09-19-v1";
 export const EUROPE_CREDIT_PACK_ID = "nordics-germany-consumer-credit-2026-09-19-v1";
 export const MINING_PACK_ID = "mining-solutions-europe-2026-09-19-v1";
+export const P2P_PACK_ID = "europe-p2p-crypto-2026-09-19-v1";
 export const CARD_PACK_IDS = [
   "credit-se-remember-flex",
   "credit-no-remember-black",

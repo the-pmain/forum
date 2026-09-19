@@ -53,6 +53,7 @@ Set `SESSION_SECRET` and `ADMIN_PIN` (four digits). Open **Admin** and enter the
 - Netherlands consumer-credit catalogue, 19 September 2026 (`nl-consumer-credit/1.0`, 134 records). Review-hold and legacy/existing-only records stay out of public new-offer results. Brokers and comparison sites map to Compare & arrange, not to lenders.
 - Finland, Sweden, Norway, Denmark and Germany consumer-credit catalogue, 19 September 2026 (`europe-consumer-credit/1.0`, 210 records). Amounts stay in the record currency. `hold_*` records stay in the editorial queue. Brokers are not lenders.
 - Europe mining solutions, 19 September 2026 (GoMining, BitFuFu, Bitdeer, NiceHash). Country availability starts as Check.
+- European P2P crypto services, 19 September 2026 (`finance-directory-p2p/1.0`, 7 records). User-supplied claims, not independently verified. All seven stay on `review_hold`. Websites, amounts and ages were not invented.
 
 Rebuild packs with `npm run catalog`. Listed is not approval. This app does not submit credit applications.
 

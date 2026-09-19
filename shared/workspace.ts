@@ -14,13 +14,15 @@ import {
   MINING_TEXT_KEYS,
   NL_CREDIT_PACK_ID,
   EUROPE_CREDIT_PACK_ID,
+  P2P_PACK_ID,
+  P2P_TEXT_KEYS,
   PUBLICATION_STATUSES,
   STATUSES,
   UPPER_STATUSES,
   WITHDRAWAL_RATINGS,
   WITHDRAWAL_SPEEDS,
 } from "./constants.ts";
-import type { Lending, Mining, Provider, Workspace } from "./types.ts";
+import type { Lending, Mining, P2p, Provider, Workspace } from "./types.ts";
 
 export function fold(value: unknown): string {
   return String(value || "")
@@ -89,6 +91,21 @@ export function normaliseMining(raw: unknown): Mining {
   }
   out.withdrawalSpeed = source.withdrawalSpeed as Mining["withdrawalSpeed"];
   out.withdrawalRating = source.withdrawalRating as Mining["withdrawalRating"];
+  out.externalWallet = source.externalWallet === true;
+  out.nonCustodial = source.nonCustodial === true;
+  return out;
+}
+
+export function normaliseP2p(raw: unknown): P2p {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error("A P2P product needs its marketplace details.");
+  }
+  const source = raw as Record<string, unknown>;
+  const out = {} as P2p;
+  for (const key of P2P_TEXT_KEYS) {
+    (out as unknown as Record<string, unknown>)[key] = text(source[key], 30000);
+  }
+  out.directDelivery = source.directDelivery === true;
   out.externalWallet = source.externalWallet === true;
   out.nonCustodial = source.nonCustodial === true;
   return out;
@@ -176,6 +193,7 @@ export function normaliseProvider(raw: unknown): Provider {
   }
   if (provider.category === "Loans & credit") provider.lending = normaliseLending(source.lending);
   if (provider.category === "Mining Solutions") provider.mining = normaliseMining(source.mining);
+  if (provider.category === "P2P" && source.p2p) provider.p2p = normaliseP2p(source.p2p);
   if (source.providerGroupId) provider.providerGroupId = text(source.providerGroupId, 120);
   if (source.deletedAt) provider.deletedAt = text(source.deletedAt, 100);
   provider.verified = source.verified === true;
@@ -278,6 +296,10 @@ export function ensurePacks(workspace: Workspace, seed: Workspace): Workspace {
   if (!next.appliedPacks.includes(MINING_PACK_ID)) {
     addMissing(seed.providers.filter((item) => item.origin === "mining-solutions-europe/1.0"));
     next.appliedPacks.push(MINING_PACK_ID);
+  }
+  if (!next.appliedPacks.includes(P2P_PACK_ID)) {
+    addMissing(seed.providers.filter((item) => item.origin === "finance-directory-p2p/1.0"));
+    next.appliedPacks.push(P2P_PACK_ID);
   }
   return next;
 }

@@ -1,0 +1,567 @@
+{
+  "packId": "europe-p2p-crypto-2026-09-19-v1",
+  "providers": [
+    {
+      "id": "crypto-p2p-okx-p2p",
+      "name": "OKX P2P",
+      "category": "P2P",
+      "website": "",
+      "service": "OKX P2P — exchange based p2p",
+      "countryFocus": "Europe",
+      "countries": {
+        "Netherlands": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; country dependent. Country availability was not independently verified. P2P purchases can be subject to withdrawal or risk-control holds. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Germany": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; country dependent. Country availability was not independently verified. P2P purchases can be subject to withdrawal or risk-control holds. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Denmark": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; country dependent. Country availability was not independently verified. P2P purchases can be subject to withdrawal or risk-control holds. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Finland": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; country dependent. Country availability was not independently verified. P2P purchases can be subject to withdrawal or risk-control holds. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Norway": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; country dependent. Country availability was not independently verified. P2P purchases can be subject to withdrawal or risk-control holds. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Sweden": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; country dependent. Country availability was not independently verified. P2P purchases can be subject to withdrawal or risk-control holds. Listing is not a finding that the platform is available or lawful here."
+        }
+      },
+      "limitations": "P2P purchases can be subject to withdrawal or risk-control holds. The 3/7/15-day hold periods are supplied claims, not a verified current policy or a rule applying to every purchase. The supplied flow begins with a bank payment; specific payment rails are not listed. Claimed withdrawal/risk-control holds: 3/7/15 days.",
+      "ageEligibility": "Not verified",
+      "ageEvidence": "Not verified",
+      "ageNotes": "",
+      "upperAge": "Upper age was not supplied in the source. Null does not mean unrestricted.",
+      "upperAgeStatus": "Not stated in source",
+      "sources": {
+        "age": [],
+        "service": []
+      },
+      "reviewNote": "European P2P crypto snapshot 19 September 2026 (finance-directory-p2p/1.0; review_hold; user_supplied_not_independently_verified). Provider claims have not been independently verified. Websites were not in the source and were left empty. Null amounts, ages, fees and country lists were not replaced with defaults. Review-hold records stay out of the public new-offer list.",
+      "sourceDate": "2026-09-19",
+      "origin": "finance-directory-p2p/1.0",
+      "notes": "",
+      "updatedAt": "2026-09-19T12:00:00.000Z",
+      "publicationStatus": "review_hold",
+      "tags": [
+        "category:p2p_crypto",
+        "type:exchange_based_p2p",
+        "region_claimed:europe",
+        "kyc_claimed:required",
+        "wallet_delivery_claimed:via_exchange",
+        "large_transactions:possible_merchant_dependent",
+        "verification:user_supplied",
+        "publication:review_hold",
+        "fiat_claimed:eur",
+        "asset_claimed:btc",
+        "asset_claimed:eth",
+        "asset_claimed:usdt",
+        "asset_claimed:usdc",
+        "restriction_claimed:withdrawal_hold_possible"
+      ],
+      "p2p": {
+        "productType": "exchange based p2p",
+        "custody": "not explicitly stated exchange account in flow",
+        "kyc": "required",
+        "escrow": "yes model unspecified",
+        "counterparty": "not specified",
+        "fiat": "EUR",
+        "assets": "BTC, ETH, USDT, USDC",
+        "payment": "bank_payment",
+        "flow": "Bank → P2P merchant → OKX → External wallet",
+        "largeTransactions": "possible merchant dependent",
+        "fee": "Not verified",
+        "holds": "3/7/15 day holds claimed",
+        "amount": "Not verified",
+        "directDelivery": false,
+        "externalWallet": true,
+        "nonCustodial": false
+      }
+    },
+    {
+      "id": "crypto-p2p-htx-p2p",
+      "name": "HTX P2P",
+      "category": "P2P",
+      "website": "",
+      "service": "HTX P2P — exchange based p2p — Also known as Huobi.",
+      "countryFocus": "Europe",
+      "countries": {
+        "Netherlands": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. European availability varies by jurisdiction. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Germany": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. European availability varies by jurisdiction. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Denmark": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. European availability varies by jurisdiction. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Finland": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. European availability varies by jurisdiction. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Norway": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. European availability varies by jurisdiction. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Sweden": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. European availability varies by jurisdiction. Listing is not a finding that the platform is available or lawful here."
+        }
+      },
+      "limitations": "European availability varies by jurisdiction. Country, asset, payment-method and merchant eligibility require current confirmation; no numerical transaction limits were supplied. The supplied flow begins with a bank payment; specific payment rails are not listed.",
+      "ageEligibility": "Not verified",
+      "ageEvidence": "Not verified",
+      "ageNotes": "",
+      "upperAge": "Upper age was not supplied in the source. Null does not mean unrestricted.",
+      "upperAgeStatus": "Not stated in source",
+      "sources": {
+        "age": [],
+        "service": []
+      },
+      "reviewNote": "European P2P crypto snapshot 19 September 2026 (finance-directory-p2p/1.0; review_hold; user_supplied_not_independently_verified). Provider claims have not been independently verified. Websites were not in the source and were left empty. Null amounts, ages, fees and country lists were not replaced with defaults. Review-hold records stay out of the public new-offer list.",
+      "sourceDate": "2026-09-19",
+      "origin": "finance-directory-p2p/1.0",
+      "notes": "",
+      "updatedAt": "2026-09-19T12:00:00.000Z",
+      "publicationStatus": "review_hold",
+      "tags": [
+        "category:p2p_crypto",
+        "type:exchange_based_p2p",
+        "region_claimed:europe",
+        "kyc_claimed:generally_required",
+        "wallet_delivery_claimed:via_exchange",
+        "large_transactions:possible_merchant_dependent",
+        "verification:user_supplied",
+        "publication:review_hold",
+        "asset_claimed:usdt",
+        "asset_claimed:btc",
+        "asset_claimed:eth"
+      ],
+      "p2p": {
+        "productType": "exchange based p2p",
+        "custody": "not explicitly stated exchange account in flow",
+        "kyc": "generally required",
+        "escrow": "yes model unspecified",
+        "counterparty": "not specified",
+        "fiat": "Depends on country and merchant.",
+        "assets": "USDT, BTC, ETH",
+        "payment": "bank_payment",
+        "flow": "Bank → P2P merchant → HTX → External wallet",
+        "largeTransactions": "possible merchant dependent",
+        "fee": "Not verified",
+        "holds": "Not enumerated in source",
+        "amount": "Not verified",
+        "directDelivery": false,
+        "externalWallet": true,
+        "nonCustodial": false
+      }
+    },
+    {
+      "id": "crypto-p2p-mexc-p2p",
+      "name": "MEXC P2P",
+      "category": "P2P",
+      "website": "",
+      "service": "MEXC P2P — exchange based p2p",
+      "countryFocus": "Europe",
+      "countries": {
+        "Netherlands": {
+          "status": "Restricted",
+          "note": "P2P and fiat services suspended. Claimed effective 2026-03-20. Not independently verified. Region claimed: Selected European countries."
+        },
+        "Germany": {
+          "status": "Check",
+          "note": "Claimed region: Selected European countries. Country availability was not independently verified. Country restrictions. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Denmark": {
+          "status": "Check",
+          "note": "Claimed region: Selected European countries. Country availability was not independently verified. Country restrictions. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Finland": {
+          "status": "Check",
+          "note": "Claimed region: Selected European countries. Country availability was not independently verified. Country restrictions. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Norway": {
+          "status": "Check",
+          "note": "Claimed region: Selected European countries. Country availability was not independently verified. Country restrictions. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Sweden": {
+          "status": "Check",
+          "note": "Claimed region: Selected European countries. Country availability was not independently verified. Country restrictions. Listing is not a finding that the platform is available or lawful here."
+        }
+      },
+      "limitations": "Country restrictions. The Netherlands suspension date is copied from the supplied text. It does not establish availability in other countries or a current suspension/resumption status. The supplied flow begins with a bank payment; specific payment rails are not listed.",
+      "ageEligibility": "Not verified",
+      "ageEvidence": "Not verified",
+      "ageNotes": "",
+      "upperAge": "Upper age was not supplied in the source. Null does not mean unrestricted.",
+      "upperAgeStatus": "Not stated in source",
+      "sources": {
+        "age": [],
+        "service": []
+      },
+      "reviewNote": "European P2P crypto snapshot 19 September 2026 (finance-directory-p2p/1.0; review_hold; user_supplied_not_independently_verified). Provider claims have not been independently verified. Websites were not in the source and were left empty. Null amounts, ages, fees and country lists were not replaced with defaults. Review-hold records stay out of the public new-offer list.",
+      "sourceDate": "2026-09-19",
+      "origin": "finance-directory-p2p/1.0",
+      "notes": "",
+      "updatedAt": "2026-09-19T12:00:00.000Z",
+      "publicationStatus": "review_hold",
+      "tags": [
+        "category:p2p_crypto",
+        "type:exchange_based_p2p",
+        "region_claimed:europe",
+        "kyc_claimed:depends_on_service_or_account_level",
+        "wallet_delivery_claimed:via_exchange",
+        "large_transactions:merchant_dependent",
+        "verification:user_supplied",
+        "publication:review_hold",
+        "restriction_claimed:nl_suspension"
+      ],
+      "p2p": {
+        "productType": "exchange based p2p",
+        "custody": "not explicitly stated exchange account in flow",
+        "kyc": "depends on service or account level",
+        "escrow": "yes model unspecified",
+        "counterparty": "not specified",
+        "fiat": "Country dependent.",
+        "assets": "Major cryptocurrencies and stablecoins; no specific assets listed.",
+        "payment": "bank_payment",
+        "flow": "Bank → P2P merchant → MEXC → External wallet",
+        "largeTransactions": "merchant dependent",
+        "fee": "Not verified",
+        "holds": "Not enumerated in source",
+        "amount": "Not verified",
+        "directDelivery": false,
+        "externalWallet": true,
+        "nonCustodial": false
+      }
+    },
+    {
+      "id": "crypto-p2p-kucoin-p2p",
+      "name": "KuCoin P2P",
+      "category": "P2P",
+      "website": "",
+      "service": "KuCoin P2P — exchange based p2p",
+      "countryFocus": "Europe",
+      "countries": {
+        "Netherlands": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; availability requires verification. Country availability was not independently verified. Current EU P2P availability requires verification. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Germany": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; availability requires verification. Country availability was not independently verified. Current EU P2P availability requires verification. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Denmark": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; availability requires verification. Country availability was not independently verified. Current EU P2P availability requires verification. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Finland": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; availability requires verification. Country availability was not independently verified. Current EU P2P availability requires verification. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Norway": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; availability requires verification. Country availability was not independently verified. Current EU P2P availability requires verification. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Sweden": {
+          "status": "Check",
+          "note": "Claimed region: Europe / EEA; availability requires verification. Country availability was not independently verified. Current EU P2P availability requires verification. Listing is not a finding that the platform is available or lawful here."
+        }
+      },
+      "limitations": "Current EU P2P availability requires verification. The supplied June 2026 statement is historical and unverified. Do not treat a licence or status attributed to KuCoin EU as proof that global KuCoin P2P is available in every EU country. The supplied flow begins with a bank payment; specific payment rails are not listed. As of 2026-06: KuCoin EU held a MiCAR licence, but European services were awaiting full resumption.",
+      "ageEligibility": "Not verified",
+      "ageEvidence": "Not verified",
+      "ageNotes": "",
+      "upperAge": "Upper age was not supplied in the source. Null does not mean unrestricted.",
+      "upperAgeStatus": "Not stated in source",
+      "sources": {
+        "age": [],
+        "service": []
+      },
+      "reviewNote": "European P2P crypto snapshot 19 September 2026 (finance-directory-p2p/1.0; review_hold; user_supplied_not_independently_verified). Provider claims have not been independently verified. Websites were not in the source and were left empty. Null amounts, ages, fees and country lists were not replaced with defaults. Review-hold records stay out of the public new-offer list.",
+      "sourceDate": "2026-09-19",
+      "origin": "finance-directory-p2p/1.0",
+      "notes": "",
+      "updatedAt": "2026-09-19T12:00:00.000Z",
+      "publicationStatus": "review_hold",
+      "tags": [
+        "category:p2p_crypto",
+        "type:exchange_based_p2p",
+        "region_claimed:europe",
+        "kyc_claimed:required",
+        "wallet_delivery_claimed:via_exchange",
+        "large_transactions:merchant_dependent",
+        "verification:user_supplied",
+        "publication:review_hold"
+      ],
+      "p2p": {
+        "productType": "exchange based p2p",
+        "custody": "not explicitly stated exchange account in flow",
+        "kyc": "required",
+        "escrow": "yes model unspecified",
+        "counterparty": "not specified",
+        "fiat": "Country dependent.",
+        "assets": "Multiple cryptocurrencies and stablecoins; specific assets not supplied.",
+        "payment": "bank_payment",
+        "flow": "Bank → P2P merchant → KuCoin → External wallet",
+        "largeTransactions": "merchant dependent",
+        "fee": "Not verified",
+        "holds": "Not enumerated in source",
+        "amount": "Not verified",
+        "directDelivery": false,
+        "externalWallet": true,
+        "nonCustodial": false
+      }
+    },
+    {
+      "id": "crypto-p2p-gate-p2p",
+      "name": "Gate P2P",
+      "category": "P2P",
+      "website": "",
+      "service": "Gate P2P — exchange based p2p — Also known as Gate.io, Gate.io P2P.",
+      "countryFocus": "Europe",
+      "countries": {
+        "Netherlands": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. Country availability and merchant liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Germany": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. Country availability and merchant liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Denmark": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. Country availability and merchant liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Finland": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. Country availability and merchant liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Norway": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. Country availability and merchant liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Sweden": {
+          "status": "Check",
+          "note": "Claimed region: Europe; country dependent. Country availability was not independently verified. Country availability and merchant liquidity. Listing is not a finding that the platform is available or lawful here."
+        }
+      },
+      "limitations": "Country availability and merchant liquidity. Country, asset, payment-method and merchant eligibility require current confirmation; no numerical transaction limits were supplied. The supplied flow begins with a bank payment; specific payment rails are not listed.",
+      "ageEligibility": "Not verified",
+      "ageEvidence": "Not verified",
+      "ageNotes": "",
+      "upperAge": "Upper age was not supplied in the source. Null does not mean unrestricted.",
+      "upperAgeStatus": "Not stated in source",
+      "sources": {
+        "age": [],
+        "service": []
+      },
+      "reviewNote": "European P2P crypto snapshot 19 September 2026 (finance-directory-p2p/1.0; review_hold; user_supplied_not_independently_verified). Provider claims have not been independently verified. Websites were not in the source and were left empty. Null amounts, ages, fees and country lists were not replaced with defaults. Review-hold records stay out of the public new-offer list.",
+      "sourceDate": "2026-09-19",
+      "origin": "finance-directory-p2p/1.0",
+      "notes": "",
+      "updatedAt": "2026-09-19T12:00:00.000Z",
+      "publicationStatus": "review_hold",
+      "tags": [
+        "category:p2p_crypto",
+        "type:exchange_based_p2p",
+        "region_claimed:europe",
+        "kyc_claimed:required",
+        "wallet_delivery_claimed:via_exchange",
+        "large_transactions:merchant_dependent",
+        "verification:user_supplied",
+        "publication:review_hold"
+      ],
+      "p2p": {
+        "productType": "exchange based p2p",
+        "custody": "not explicitly stated exchange account in flow",
+        "kyc": "required",
+        "escrow": "yes model unspecified",
+        "counterparty": "not specified",
+        "fiat": "Depends on the local market.",
+        "assets": "Multiple cryptocurrencies and stablecoins; specific assets not supplied.",
+        "payment": "bank_payment",
+        "flow": "Bank → P2P merchant → Gate → External wallet",
+        "largeTransactions": "merchant dependent",
+        "fee": "Not verified",
+        "holds": "Not enumerated in source",
+        "amount": "Not verified",
+        "directDelivery": false,
+        "externalWallet": true,
+        "nonCustodial": false
+      }
+    },
+    {
+      "id": "crypto-p2p-localcoinswap",
+      "name": "LocalCoinSwap P2P marketplace",
+      "category": "P2P",
+      "website": "",
+      "service": "LocalCoinSwap P2P marketplace — non custodial p2p marketplace",
+      "countryFocus": "Europe",
+      "countries": {
+        "Netherlands": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. Seller limits and available liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Germany": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. Seller limits and available liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Denmark": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. Seller limits and available liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Finland": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. Seller limits and available liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Norway": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. Seller limits and available liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Sweden": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. Seller limits and available liquidity. Listing is not a finding that the platform is available or lawful here."
+        }
+      },
+      "limitations": "Seller limits and available liquidity. Non-custodial escrow and direct delivery to an arbitrary external wallet are separate features. Both are claimed in the pasted text; the exact asset/network and settlement mechanism were not independently verified. The supplied flow begins with a bank payment; specific payment rails are not listed.",
+      "ageEligibility": "Not verified",
+      "ageEvidence": "Not verified",
+      "ageNotes": "",
+      "upperAge": "Upper age was not supplied in the source. Null does not mean unrestricted.",
+      "upperAgeStatus": "Not stated in source",
+      "sources": {
+        "age": [],
+        "service": []
+      },
+      "reviewNote": "European P2P crypto snapshot 19 September 2026 (finance-directory-p2p/1.0; review_hold; user_supplied_not_independently_verified). Provider claims have not been independently verified. Websites were not in the source and were left empty. Null amounts, ages, fees and country lists were not replaced with defaults. Review-hold records stay out of the public new-offer list.",
+      "sourceDate": "2026-09-19",
+      "origin": "finance-directory-p2p/1.0",
+      "notes": "",
+      "updatedAt": "2026-09-19T12:00:00.000Z",
+      "publicationStatus": "review_hold",
+      "tags": [
+        "category:p2p_crypto",
+        "type:non_custodial_p2p_marketplace",
+        "region_claimed:europe",
+        "kyc_claimed:depends_on_counterparty_and_transaction",
+        "wallet_delivery_claimed:direct",
+        "large_transactions:possible_subject_to_seller_liquidity",
+        "verification:user_supplied",
+        "publication:review_hold",
+        "custody_claimed:non_custodial",
+        "fiat_claimed:eur"
+      ],
+      "p2p": {
+        "productType": "non custodial p2p marketplace",
+        "custody": "non custodial",
+        "kyc": "depends on counterparty and transaction",
+        "escrow": "on chain non custodial",
+        "counterparty": "variable",
+        "fiat": "EUR",
+        "assets": "Multiple cryptocurrencies; specific assets not supplied.",
+        "payment": "bank_payment",
+        "flow": "Bank → Seller → Escrow → External wallet",
+        "largeTransactions": "possible subject to seller liquidity",
+        "fee": "Not verified",
+        "holds": "Not enumerated in source",
+        "amount": "Not verified",
+        "directDelivery": true,
+        "externalWallet": true,
+        "nonCustodial": true
+      }
+    },
+    {
+      "id": "crypto-p2p-hodl-hodl",
+      "name": "Hodl Hodl Bitcoin P2P",
+      "category": "P2P",
+      "website": "",
+      "service": "Hodl Hodl Bitcoin P2P — non custodial bitcoin p2p",
+      "countryFocus": "Europe",
+      "countries": {
+        "Netherlands": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. BTC only and seller liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Germany": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. BTC only and seller liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Denmark": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. BTC only and seller liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Finland": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. BTC only and seller liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Norway": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. BTC only and seller liquidity. Listing is not a finding that the platform is available or lawful here."
+        },
+        "Sweden": {
+          "status": "Check",
+          "note": "Claimed region: Global / Europe. Country availability was not independently verified. BTC only and seller liquidity. Listing is not a finding that the platform is available or lawful here."
+        }
+      },
+      "limitations": "BTC only and seller liquidity. Up to approximately 0.75% is the supplied fee claim; per-party/per-trade basis, discounts and current applicability are not supplied. The KYC claim does not establish that identity verification can never be requested. The supplied flow begins with a bank payment; specific payment rails are not listed.",
+      "ageEligibility": "Not verified",
+      "ageEvidence": "Not verified",
+      "ageNotes": "",
+      "upperAge": "Upper age was not supplied in the source. Null does not mean unrestricted.",
+      "upperAgeStatus": "Not stated in source",
+      "sources": {
+        "age": [],
+        "service": []
+      },
+      "reviewNote": "European P2P crypto snapshot 19 September 2026 (finance-directory-p2p/1.0; review_hold; user_supplied_not_independently_verified). Provider claims have not been independently verified. Websites were not in the source and were left empty. Null amounts, ages, fees and country lists were not replaced with defaults. Review-hold records stay out of the public new-offer list.",
+      "sourceDate": "2026-09-19",
+      "origin": "finance-directory-p2p/1.0",
+      "notes": "",
+      "updatedAt": "2026-09-19T12:00:00.000Z",
+      "publicationStatus": "review_hold",
+      "tags": [
+        "category:p2p_crypto",
+        "type:non_custodial_bitcoin_p2p",
+        "region_claimed:europe",
+        "kyc_claimed:no_standard_centralised_kyc_model",
+        "wallet_delivery_claimed:direct",
+        "large_transactions:possible_subject_to_seller_liquidity",
+        "verification:user_supplied",
+        "publication:review_hold",
+        "custody_claimed:non_custodial",
+        "fiat_claimed:eur",
+        "asset_claimed:btc",
+        "asset_scope_claimed:btc_only"
+      ],
+      "p2p": {
+        "productType": "non custodial bitcoin p2p",
+        "custody": "non custodial",
+        "kyc": "no standard centralised kyc model",
+        "escrow": "bitcoin 2 of 3 multisignature",
+        "counterparty": "variable",
+        "fiat": "EUR",
+        "assets": "BTC",
+        "payment": "bank_payment",
+        "flow": "Bank → Seller → Multisig escrow → External BTC wallet",
+        "largeTransactions": "possible subject to seller liquidity",
+        "fee": "Up to about 0.75% claimed (approximate)",
+        "holds": "Not enumerated in source",
+        "amount": "Not verified",
+        "directDelivery": true,
+        "externalWallet": true,
+        "nonCustodial": true
+      }
+    }
+  ]
+}

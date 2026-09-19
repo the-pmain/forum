@@ -14,7 +14,7 @@ import {
   WITHDRAWAL_RATINGS,
   WITHDRAWAL_SPEEDS,
 } from "@shared/constants.ts";
-import type { Category, Country, DirectoryView, Lending, Mining, Provider, Status, Workspace } from "@shared/types.ts";
+import type { Category, Country, DirectoryView, Lending, Mining, P2p, Provider, Status, Workspace } from "@shared/types.ts";
 import { newProviderId, normaliseProvider } from "@shared/workspace.ts";
 import { useI18n, withLocale } from "../i18n/context.tsx";
 import { api } from "../lib/api.ts";
@@ -88,6 +88,27 @@ function defaultMining(): Mining {
   };
 }
 
+function defaultP2p(): P2p {
+  return {
+    productType: "",
+    custody: "",
+    kyc: "",
+    escrow: "",
+    counterparty: "",
+    fiat: "",
+    assets: "",
+    payment: "",
+    flow: "",
+    largeTransactions: "",
+    fee: "",
+    holds: "",
+    amount: "",
+    directDelivery: false,
+    externalWallet: false,
+    nonCustodial: false,
+  };
+}
+
 function readFavorites(): string[] {
   if (typeof localStorage === "undefined") return [];
   try {
@@ -129,6 +150,7 @@ export function EntryPage({
 
   const lending = draft.lending || defaultLending();
   const mining = draft.mining || defaultMining();
+  const p2p = draft.p2p || defaultP2p();
   const missing = Boolean(id && !existing);
 
   function setField<K extends keyof Provider>(key: K, value: Provider[K]) {
@@ -156,6 +178,7 @@ export function EntryPage({
         ...draft,
         lending: draft.category === "Loans & credit" ? lending : undefined,
         mining: draft.category === "Mining Solutions" ? mining : undefined,
+        p2p: draft.category === "P2P" ? p2p : undefined,
         updatedAt: new Date().toISOString(),
         origin: draft.origin || "User-added",
       });
@@ -306,6 +329,26 @@ export function EntryPage({
                   <label className="field full-width"><span>{t("mining.rules")}</span><textarea value={mining.withdrawalRules} onChange={(event) => setField("mining", { ...mining, withdrawalRules: event.target.value })} /></label>
                   <label className="field full-width">
                     <span className="checkbox-label"><input type="checkbox" checked={mining.externalWallet} onChange={(event) => setField("mining", { ...mining, externalWallet: event.target.checked })} />{t("mining.external")}</span>
+                  </label>
+                </div>
+              </>
+            ) : null}
+
+            {draft.category === "P2P" ? (
+              <>
+                <div className="form-divider"><h3>{t("form.p2p")}</h3><p>{t("form.p2pHint")}</p></div>
+                <div className="form-grid">
+                  <label className="field"><span>{t("p2p.type")}</span><input value={p2p.productType} onChange={(event) => setField("p2p", { ...p2p, productType: event.target.value })} /></label>
+                  <label className="field"><span>{t("p2p.custody")}</span><input value={p2p.custody} onChange={(event) => setField("p2p", { ...p2p, custody: event.target.value })} /></label>
+                  <label className="field"><span>{t("p2p.kyc")}</span><input value={p2p.kyc} onChange={(event) => setField("p2p", { ...p2p, kyc: event.target.value })} /></label>
+                  <label className="field"><span>{t("p2p.escrow")}</span><input value={p2p.escrow} onChange={(event) => setField("p2p", { ...p2p, escrow: event.target.value })} /></label>
+                  <label className="field full-width"><span>{t("p2p.flow")}</span><textarea value={p2p.flow} onChange={(event) => setField("p2p", { ...p2p, flow: event.target.value })} /></label>
+                  <label className="field full-width"><span>{t("p2p.assets")}</span><input value={p2p.assets} onChange={(event) => setField("p2p", { ...p2p, assets: event.target.value })} /></label>
+                  <label className="field full-width">
+                    <span className="checkbox-label"><input type="checkbox" checked={p2p.directDelivery} onChange={(event) => setField("p2p", { ...p2p, directDelivery: event.target.checked })} />{t("p2p.direct")}</span>
+                  </label>
+                  <label className="field full-width">
+                    <span className="checkbox-label"><input type="checkbox" checked={p2p.nonCustodial} onChange={(event) => setField("p2p", { ...p2p, nonCustodial: event.target.checked })} />{t("p2p.nonCustodial")}</span>
                   </label>
                 </div>
               </>

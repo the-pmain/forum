@@ -41,6 +41,8 @@ export function HelpPage() {
           <p>Use Cards &amp; overdrafts, Personal &amp; senior, Shopping &amp; BNPL, Car finance, Mortgages &amp; home equity, Retirement borrowing, and Public &amp; student as product groups. Small amount, senior, homeowner and self-employed are cross-filters, not extra lender lists.</p>
           <h3>Mining solutions</h3>
           <p>Europe-focused hashrate products that can send BTC to an external wallet. A green withdrawal rating is not a profitability or instant-payout guarantee. Country profiles start as Check until local terms are verified.</p>
+          <h3>P2P crypto</h3>
+          <p>The 19 September 2026 European P2P snapshot (7 records) is user-supplied and not independently verified. All records stay on review hold, off the public new-offer list. Websites, amounts and ages were not invented. Exchange-based P2P is not the same as a non-custodial marketplace. Country profiles start as Check except claimed restrictions such as a Netherlands suspension.</p>
           <h3>Older applicants</h3>
           <p>Read the application-age rule, age at final repayment and pension requirements separately. Only “No cap (explicit)” means the cited product page explicitly says there is no maximum age; it still does not guarantee eligibility.</p>
           <h3>Privacy</h3>

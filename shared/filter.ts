@@ -83,6 +83,10 @@ export function filterRecords(records: Provider[], view: DirectoryView, favorite
       if (view.miningSpeed !== "all" && mining?.withdrawalSpeed !== view.miningSpeed) return false;
       if (view.miningRating !== "all" && mining?.withdrawalRating !== view.miningRating) return false;
     }
+    if (!ignoreCategory && view.category === "P2P") {
+      if (view.p2pModel === "exchange" && provider.p2p?.nonCustodial) return false;
+      if (view.p2pModel === "non_custodial" && !provider.p2p?.nonCustodial) return false;
+    }
     const query = fold(view.query).trim();
     if (query) {
       const hay = fold([
@@ -100,6 +104,7 @@ export function filterRecords(records: Provider[], view: DirectoryView, favorite
         provider.providerGroupId || "",
         ...Object.values(provider.lending || {}),
         ...Object.values(provider.mining || {}),
+        ...Object.values(provider.p2p || {}),
         ...Object.entries(provider.countries).map(([country, entry]) => `${country} ${entry.note}`),
       ].join(" "));
       if (!query.split(/\s+/).every((token) => hay.includes(token))) return false;

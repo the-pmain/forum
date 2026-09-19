@@ -13,6 +13,7 @@ import type {
   UPPER_STATUSES,
   WITHDRAWAL_RATINGS,
   WITHDRAWAL_SPEEDS,
+  P2P_MODELS,
 } from "./constants.ts";
 
 export type Country = (typeof COUNTRIES)[number];
@@ -28,6 +29,7 @@ export type AudienceFilter = (typeof AUDIENCE_FILTERS)[number];
 export type PublicationStatus = (typeof PUBLICATION_STATUSES)[number];
 export type WithdrawalSpeed = (typeof WITHDRAWAL_SPEEDS)[number];
 export type WithdrawalRating = (typeof WITHDRAWAL_RATINGS)[number];
+export type P2pModel = (typeof P2P_MODELS)[number];
 export type Locale = (typeof LOCALES)[number];
 
 export interface CountryEntry {
@@ -73,6 +75,25 @@ export interface Mining {
   bestFor: string;
 }
 
+export interface P2p {
+  productType: string;
+  custody: string;
+  kyc: string;
+  escrow: string;
+  counterparty: string;
+  fiat: string;
+  assets: string;
+  payment: string;
+  flow: string;
+  largeTransactions: string;
+  fee: string;
+  holds: string;
+  amount: string;
+  directDelivery: boolean;
+  externalWallet: boolean;
+  nonCustodial: boolean;
+}
+
 export interface Provider {
   id: string;
   name: string;
@@ -97,6 +118,7 @@ export interface Provider {
   maxPayment?: string;
   lending?: Lending;
   mining?: Mining;
+  p2p?: P2p;
   publicationStatus: PublicationStatus;
   tags: string[];
   providerGroupId?: string;
@@ -145,6 +167,7 @@ export interface DirectoryView {
   publication: PublicationFilter;
   miningSpeed: "all" | WithdrawalSpeed;
   miningRating: "all" | WithdrawalRating;
+  p2pModel: "all" | P2pModel;
 }
 
 export const DEFAULT_VIEW: DirectoryView = {
@@ -166,6 +189,7 @@ export const DEFAULT_VIEW: DirectoryView = {
   publication: "new_offers",
   miningSpeed: "all",
   miningRating: "all",
+  p2pModel: "all",
 };
 
 export interface EntryComment {

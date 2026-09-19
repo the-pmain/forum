@@ -149,6 +149,7 @@ export function DirectoryPage({
   const paging = paginate(filtered, view.page);
   const showLoans = view.category === "Loans & credit";
   const showMining = view.category === "Mining Solutions";
+  const showP2p = view.category === "P2P";
   const showBanks = view.category === "High-street banks" && view.mode !== "trash";
   const showAggregators = view.category === "Aggregators" && view.mode !== "trash";
   const requireAdmin = async () => {
@@ -195,6 +196,9 @@ export function DirectoryPage({
           <button className={`nav-button${view.mode === "directory" && showMining ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "Mining Solutions", query: "", status: "all", upper: "all", miningSpeed: "all", miningRating: "all" }, true)}>
             <Icon name="pickaxe" />{t("nav.mining")}<span className="nav-count">{workspace.providers.filter((item) => item.category === "Mining Solutions").length}</span>
           </button>
+          <button className={`nav-button${view.mode === "directory" && showP2p ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "P2P", query: "", status: "all", upper: "all", publication: "all", p2pModel: "all" }, true)}>
+            <Icon name="users" />{t("nav.p2p")}<span className="nav-count">{workspace.providers.filter((item) => item.category === "P2P").length}</span>
+          </button>
           <div className="nav-caption">{t("nav.countries")}</div>
           <button className={`nav-button country-nav${view.country === "all" ? " active" : ""}`} type="button" onClick={() => goCountry("all")}>
             <Icon name="globe" />{t("nav.allCountries")}
@@ -238,7 +242,7 @@ export function DirectoryPage({
             <span className="crumb-root">{t("header.workspace")}</span>
             <span aria-hidden="true" className="crumb-root">/</span>
             <strong>
-              {view.mode === "trash" ? t("intro.crumbTrash") : view.mode === "favorites" ? t("intro.crumbSaved") : showMining ? (view.country === "all" ? t("intro.crumbMining") : t("intro.crumbMiningCountry", { country: view.country })) : showLoans ? (view.country === "all" ? t("intro.crumbBorrow") : t("intro.crumbBorrowCountry", { country: view.country })) : view.country === "all" ? t("intro.crumb") : t("intro.crumbCountry", { country: view.country })}
+              {view.mode === "trash" ? t("intro.crumbTrash") : view.mode === "favorites" ? t("intro.crumbSaved") : showP2p ? (view.country === "all" ? t("intro.crumbP2p") : t("intro.crumbP2pCountry", { country: view.country })) : showMining ? (view.country === "all" ? t("intro.crumbMining") : t("intro.crumbMiningCountry", { country: view.country })) : showLoans ? (view.country === "all" ? t("intro.crumbBorrow") : t("intro.crumbBorrowCountry", { country: view.country })) : view.country === "all" ? t("intro.crumb") : t("intro.crumbCountry", { country: view.country })}
             </strong>
           </div>
           <div className="top-actions">
@@ -286,10 +290,10 @@ export function DirectoryPage({
             <div>
               <div className="eyebrow">{view.country === "all" ? t("intro.eyebrowAll") : view.country}</div>
               <h1 id="pageTitle">
-                {view.mode === "trash" ? t("intro.titleTrash") : view.mode === "favorites" ? t("intro.titleSaved") : showMining ? (view.country === "all" ? t("intro.titleMining") : t("intro.titleMiningCountry", { country: view.country })) : showLoans ? (view.country === "all" ? t("intro.titleLoans") : t("intro.titleLoansCountry", { country: view.country })) : view.country !== "all" ? t("intro.titleCountry", { country: view.country }) : t("intro.title")}
+                {view.mode === "trash" ? t("intro.titleTrash") : view.mode === "favorites" ? t("intro.titleSaved") : showP2p ? (view.country === "all" ? t("intro.titleP2p") : t("intro.titleP2pCountry", { country: view.country })) : showMining ? (view.country === "all" ? t("intro.titleMining") : t("intro.titleMiningCountry", { country: view.country })) : showLoans ? (view.country === "all" ? t("intro.titleLoans") : t("intro.titleLoansCountry", { country: view.country })) : view.country !== "all" ? t("intro.titleCountry", { country: view.country }) : t("intro.title")}
               </h1>
               <p>
-                {view.mode === "trash" ? t("intro.descriptionTrash") : view.mode === "favorites" ? t("intro.descriptionSaved") : showMining ? t("intro.descriptionMining") : showLoans ? t("intro.descriptionLoans") : view.country !== "all" ? t("intro.descriptionCountry") : t("intro.description")}
+                {view.mode === "trash" ? t("intro.descriptionTrash") : view.mode === "favorites" ? t("intro.descriptionSaved") : showP2p ? t("intro.descriptionP2p") : showMining ? t("intro.descriptionMining") : showLoans ? t("intro.descriptionLoans") : view.country !== "all" ? t("intro.descriptionCountry") : t("intro.description")}
               </p>
             </div>
             <div className="stats-inline">
@@ -309,7 +313,10 @@ export function DirectoryPage({
 
           <nav className="category-grid" aria-label="Service categories">
             {CATEGORY_INFO.map((category) => (
-              <button key={category.name} className={`category-tile${view.category === category.name ? " active" : ""}`} type="button" data-category={category.name} aria-pressed={view.category === category.name} onClick={() => navigateView({ category: view.category === category.name ? "all" : category.name })}>
+              <button key={category.name} className={`category-tile${view.category === category.name ? " active" : ""}`} type="button" data-category={category.name} aria-pressed={view.category === category.name} onClick={() => {
+                const next = view.category === category.name ? "all" : category.name;
+                navigateView({ category: next, ...(next === "P2P" ? { publication: "all" as const, p2pModel: "all" as const } : {}) });
+              }}>
                 <span className="tile-top">
                   <span className="tile-icon"><Icon name={category.icon} /></span>
                   <span className="tile-count count">{categoryCounts.filter((item) => item.category === category.name).length}</span>
@@ -346,6 +353,14 @@ export function DirectoryPage({
             <div className="loan-notice mining-notice">
               <div className="loan-notice-icon"><Icon name="pickaxe" /></div>
               <div><strong>{t("notices.miningTitle")}</strong><p>{t("notices.miningBody")}</p></div>
+              <Link className="link-btn" to={withLocale(locale, "/help")}>{t("notices.readGuide")} <span aria-hidden="true">↗</span></Link>
+            </div>
+          ) : null}
+
+          {showP2p && view.mode !== "trash" ? (
+            <div className="loan-notice mining-notice">
+              <div className="loan-notice-icon"><Icon name="users" /></div>
+              <div><strong>{t("notices.p2pTitle")}</strong><p>{t("notices.p2pBody")}</p></div>
               <Link className="link-btn" to={withLocale(locale, "/help")}>{t("notices.readGuide")} <span aria-hidden="true">↗</span></Link>
             </div>
           ) : null}
@@ -389,7 +404,7 @@ export function DirectoryPage({
                   {UPPER_STATUSES.map((item) => <option key={item} value={item}>{item}</option>)}
                 </select>
               </label>
-              <button className="filter-reset" type="button" onClick={() => navigateView({ country: "all", category: "all", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all", loanGroup: "all", audience: "all", publication: "new_offers", miningSpeed: "all", miningRating: "all" })}>
+              <button className="filter-reset" type="button" onClick={() => navigateView({ country: "all", category: "all", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all", loanGroup: "all", audience: "all", publication: "new_offers", miningSpeed: "all", miningRating: "all", p2pModel: "all" })}>
                 <Icon name="reset" />{t("filters.clear")}
               </button>
             </div>
@@ -474,6 +489,27 @@ export function DirectoryPage({
                 </div>
               </div>
             ) : null}
+            {showP2p ? (
+              <div className="loan-filter-panel">
+                <div className="loan-filter-title">{t("filters.p2pTitle")} <span>{t("filters.p2pHint")}</span></div>
+                <nav className="loan-shortcuts" aria-label="P2P models">
+                  <button className={`btn btn-sm${view.p2pModel === "all" ? " active" : ""}`} type="button" onClick={() => navigateView({ p2pModel: "all" })}>{t("filters.allP2p")}</button>
+                  <button className={`btn btn-sm${view.p2pModel === "exchange" ? " active" : ""}`} type="button" onClick={() => navigateView({ p2pModel: "exchange" })}>{t("filters.p2pExchange")}</button>
+                  <button className={`btn btn-sm${view.p2pModel === "non_custodial" ? " active" : ""}`} type="button" onClick={() => navigateView({ p2pModel: "non_custodial" })}>{t("filters.p2pNonCustodial")}</button>
+                  {admin ? (
+                    <label className="filter-label publication-filter">
+                      <span>{t("filters.publication")}</span>
+                      <select className="filter-select" value={view.publication} onChange={(event) => navigateView({ publication: event.target.value as DirectoryView["publication"] })}>
+                        <option value="new_offers">{t("filters.newOffers")}</option>
+                        <option value="all">{t("filters.allPublication")}</option>
+                        <option value="review_hold">{t("filters.reviewHold")}</option>
+                        <option value="legacy">{t("filters.legacy")}</option>
+                      </select>
+                    </label>
+                  ) : null}
+                </nav>
+              </div>
+            ) : null}
           </section>
 
           <div className="active-chips">
@@ -485,6 +521,7 @@ export function DirectoryPage({
             {view.loanGroup !== "all" ? <button className="filter-chip" type="button" onClick={() => navigateView({ loanGroup: "all" })}>{t(`filters.group.${view.loanGroup}`)}<Icon name="x" /></button> : null}
             {view.audience !== "all" ? <button className="filter-chip" type="button" onClick={() => navigateView({ audience: "all", loanMinimum: view.loanMinimum === "small" ? "all" : view.loanMinimum })}>{t(`filters.${view.audience === "self_employed" ? "selfEmployed" : view.audience}`)}<Icon name="x" /></button> : null}
             {view.miningRating !== "all" ? <button className="filter-chip" type="button" onClick={() => navigateView({ miningRating: "all" })}>{view.miningRating.replace("_", " / ")}<Icon name="x" /></button> : null}
+            {view.p2pModel !== "all" ? <button className="filter-chip" type="button" onClick={() => navigateView({ p2pModel: "all" })}>{t(view.p2pModel === "exchange" ? "filters.p2pExchange" : "filters.p2pNonCustodial")}<Icon name="x" /></button> : null}
           </div>
 
           <section aria-labelledby="resultsTitle">
@@ -511,7 +548,7 @@ export function DirectoryPage({
                 <span className="empty-icon"><Icon name={view.mode === "favorites" ? "star" : view.mode === "trash" ? "trash" : "search"} /></span>
                 <h2>{view.mode === "trash" ? t("results.emptyTrash") : view.mode === "favorites" ? t("results.emptySaved") : t("results.empty")}</h2>
                 <p>{view.mode === "favorites" ? t("results.emptySavedHint") : view.mode === "trash" ? t("results.emptyTrashHint") : t("results.emptyHint")}</p>
-                <button className="btn" type="button" onClick={() => navigateView({ country: "all", category: "all", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all", loanGroup: "all", audience: "all", publication: "new_offers", miningSpeed: "all", miningRating: "all" })}>{t("filters.clear")}</button>
+                <button className="btn" type="button" onClick={() => navigateView({ country: "all", category: "all", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all", loanGroup: "all", audience: "all", publication: "new_offers", miningSpeed: "all", miningRating: "all", p2pModel: "all" })}>{t("filters.clear")}</button>
                 <button className="btn btn-primary" type="button" disabled={view.mode === "directory" && !admin} onClick={() => view.mode === "directory" ? goToEntry() : navigateView({ mode: "directory" })}>{view.mode === "directory" ? t("results.add") : t("results.browse")}</button>
               </div>
             ) : view.layout === "grid" ? (
@@ -524,7 +561,7 @@ export function DirectoryPage({
                         <div className="avatar" aria-hidden="true">{initials(provider.name)}</div>
                         <div className="card-title">
                           <span className="provider-name">{provider.name}</span>
-                          <div className="category-tag">{provider.lending?.type || provider.mining?.productType || categoryInfo(provider.category).label}</div>
+                          <div className="category-tag">{provider.lending?.type || provider.mining?.productType || provider.p2p?.productType || categoryInfo(provider.category).label}</div>
                           {provider.verified ? <span className="verified-mark"><Icon name="badgeCheck" /> {t("admin.verifiedMark")}</span> : null}
                           {admin && provider.hidden ? <span className="hidden-mark"><Icon name="eyeOff" /> {t("admin.hiddenMark")}</span> : null}
                         </div>
@@ -551,6 +588,13 @@ export function DirectoryPage({
                           <div className="loan-amount"><span>{t("mining.rating")}</span><strong className={`rating-label rating-${provider.mining.withdrawalRating.toLowerCase()}`}>{provider.mining.withdrawalRating.replace("_", " / ")}</strong></div>
                           <div className="loan-meta-line"><Icon name="clock" /><span>{t(`mining.speedLabel.${provider.mining.withdrawalSpeed}`)}</span></div>
                           <div className="loan-meta-line"><Icon name="unlock" /><span>{provider.mining.externalWallet ? t("mining.external") : t("mining.custodial")}</span></div>
+                        </div>
+                      ) : null}
+                      {provider.category === "P2P" && provider.p2p ? (
+                        <div className="loan-card-meta">
+                          <div className="loan-amount"><span>{t("p2p.custody")}</span><strong>{provider.p2p.nonCustodial ? t("p2p.nonCustodial") : t("p2p.exchangeBased")}</strong></div>
+                          <div className="loan-meta-line"><Icon name="unlock" /><span>{provider.p2p.directDelivery ? t("p2p.direct") : t("p2p.viaExchange")}</span></div>
+                          <div className="loan-meta-line"><Icon name="shield" /><span>{provider.p2p.kyc}</span></div>
                         </div>
                       ) : null}
                       <div className="card-age"><Icon name="shield" />{t("results.upperAge")} <strong>{provider.upperAgeStatus}</strong></div>
@@ -584,13 +628,15 @@ export function DirectoryPage({
               </div>
             ) : (
               <div className="table-wrap">
-                <table className={`provider-table${showLoans || showMining ? " loan-table" : ""}`}>
+                <table className={`provider-table${showLoans || showMining || showP2p ? " loan-table" : ""}`}>
                   <thead>
                     <tr>
                       {showLoans ? (
                         <><th>{t("table.product")}</th><th>{t("table.type")}</th><th>{t("table.amount")}</th><th>{t("table.funding")}</th><th>{t("table.upper")}</th><th>{t("table.actions")}</th></>
                       ) : showMining ? (
                         <><th>{t("table.provider")}</th><th>{t("table.type")}</th><th>{t("table.rating")}</th><th>{t("table.withdrawal")}</th><th>{t("table.upper")}</th><th>{t("table.actions")}</th></>
+                      ) : showP2p ? (
+                        <><th>{t("table.provider")}</th><th>{t("table.type")}</th><th>{t("table.custody")}</th><th>{t("table.delivery")}</th><th>{t("table.upper")}</th><th>{t("table.actions")}</th></>
                       ) : (
                         <><th>{t("table.provider")}</th><th>{t("table.category")}</th><th>{t("table.flag")}</th><th>{t("table.records")}</th><th>{t("table.upper")}</th><th>{t("table.actions")}</th></>
                       )}
@@ -601,13 +647,14 @@ export function DirectoryPage({
                       <tr key={provider.id} data-category={provider.category} className={`table-row-link${provider.verified ? " is-verified" : ""}${provider.hidden ? " is-hidden" : ""}`} onClick={(event) => { if (!(event.target as HTMLElement).closest("button, a")) routerNavigate(providerHref(provider.id)); }}>
                         <td>
                           <div className="table-provider">
-                            {!showLoans && !showMining ? <div className="avatar" aria-hidden="true">{initials(provider.name)}</div> : null}
+                            {!showLoans && !showMining && !showP2p ? <div className="avatar" aria-hidden="true">{initials(provider.name)}</div> : null}
                             <Link className="provider-name" to={providerHref(provider.id)}>{provider.name}</Link>
                             {provider.verified ? <span className="verified-mark"><Icon name="badgeCheck" /> {t("admin.verifiedMark")}</span> : null}
                             {admin && provider.hidden ? <span className="hidden-mark"><Icon name="eyeOff" /> {t("admin.hiddenMark")}</span> : null}
                           </div>
                           {showLoans ? <div className="market-chips" style={{ marginTop: 7 }}><MarketChips provider={provider} country={view.country} /></div> : null}
                           {showMining ? <div className="market-chips" style={{ marginTop: 7 }}><MarketChips provider={provider} country={view.country} /></div> : null}
+                          {showP2p ? <div className="market-chips" style={{ marginTop: 7 }}><MarketChips provider={provider} country={view.country} /></div> : null}
                         </td>
                         {showLoans ? (
                           <>
@@ -621,6 +668,13 @@ export function DirectoryPage({
                             <td><span className="small">{provider.mining?.productType}</span><div className="tiny muted" style={{ marginTop: 5 }}>{provider.mining?.rewards}</div></td>
                             <td><strong className="small">{(provider.mining?.withdrawalRating || "").replace("_", " / ")}</strong><div className="tiny muted" style={{ marginTop: 5 }}>{provider.mining?.kyc}</div></td>
                             <td><span className="small">{provider.mining ? t(`mining.speedLabel.${provider.mining.withdrawalSpeed}`) : ""}</span><div className="tiny muted" style={{ marginTop: 5 }}>{provider.mining?.instantWithdrawal}</div></td>
+                            <td className="small">{provider.upperAgeStatus}<div className="tiny muted" style={{ marginTop: 5 }}>{provider.ageEligibility}</div></td>
+                          </>
+                        ) : showP2p ? (
+                          <>
+                            <td><span className="small">{provider.p2p?.productType}</span><div className="tiny muted" style={{ marginTop: 5 }}>{provider.p2p?.assets}</div></td>
+                            <td><strong className="small">{provider.p2p?.nonCustodial ? t("p2p.nonCustodial") : t("p2p.exchangeBased")}</strong><div className="tiny muted" style={{ marginTop: 5 }}>{provider.p2p?.kyc}</div></td>
+                            <td><span className="small">{provider.p2p?.directDelivery ? t("p2p.direct") : t("p2p.viaExchange")}</span><div className="tiny muted" style={{ marginTop: 5 }}>{provider.p2p?.escrow}</div></td>
                             <td className="small">{provider.upperAgeStatus}<div className="tiny muted" style={{ marginTop: 5 }}>{provider.ageEligibility}</div></td>
                           </>
                         ) : (

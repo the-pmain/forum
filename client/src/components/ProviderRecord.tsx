@@ -51,6 +51,40 @@ export function MiningDetails({ provider }: { provider: Provider }) {
   );
 }
 
+export function P2pDetails({ provider }: { provider: Provider }) {
+  const { t } = useI18n();
+  const p2p = provider.p2p!;
+  return (
+    <>
+      <div className="loan-detail-head">
+        <span className="loan-kind">{p2p.productType}</span>
+        <span className="pill">{p2p.nonCustodial ? t("p2p.nonCustodial") : t("p2p.exchangeBased")}</span>
+      </div>
+      <section className="detail-section">
+        <div className="limit-box loan-limit">
+          <strong>{t("p2p.delivery")}</strong>
+          <p>{p2p.directDelivery ? t("p2p.direct") : t("p2p.viaExchange")}</p>
+          <span className="small muted">{p2p.externalWallet ? t("p2p.external") : t("p2p.viaExchange")}</span>
+        </div>
+      </section>
+      <div className="age-grid">
+        <div className="detail-stat"><span>{t("p2p.custody")}</span><strong>{p2p.custody}</strong></div>
+        <div className="detail-stat"><span>{t("p2p.kyc")}</span><strong>{p2p.kyc}</strong></div>
+      </div>
+      <div className="callout warning loan-risk"><Icon name="info" />{t("p2p.note")}</div>
+      <section className="detail-section"><h3>{t("p2p.escrow")}</h3><p>{p2p.escrow}</p></section>
+      <section className="detail-section"><h3>{t("p2p.flow")}</h3><p>{p2p.flow}</p></section>
+      <section className="detail-section"><h3>{t("p2p.fiat")}</h3><p>{p2p.fiat}</p></section>
+      <section className="detail-section"><h3>{t("p2p.assets")}</h3><p>{p2p.assets}</p></section>
+      <section className="detail-section"><h3>{t("p2p.payment")}</h3><p>{p2p.payment}</p></section>
+      <section className="detail-section"><h3>{t("p2p.large")}</h3><p>{p2p.largeTransactions}</p></section>
+      <section className="detail-section"><h3>{t("p2p.fee")}</h3><p>{p2p.fee}</p></section>
+      <section className="detail-section"><h3>{t("p2p.holds")}</h3><p>{p2p.holds}</p></section>
+      <section className="detail-section"><h3>{t("p2p.amount")}</h3><p>{p2p.amount}</p></section>
+    </>
+  );
+}
+
 export function LendingDetails({ provider }: { provider: Provider }) {
   const { t } = useI18n();
   const lending = provider.lending!;
@@ -120,6 +154,7 @@ export function ProviderRecord({
       <section className="detail-section"><h3>{t("detail.glance")}</h3><p>{provider.service || provider.countryFocus || t("detail.noDescription")}</p></section>
       {provider.lending ? <LendingDetails provider={provider} /> : null}
       {provider.mining ? <MiningDetails provider={provider} /> : null}
+      {provider.p2p ? <P2pDetails provider={provider} /> : null}
       <section className="detail-section"><h3>{t("detail.limits")}</h3><p>{provider.limitations || t("detail.noLimits")}</p></section>
       {provider.category === "Ramps" ? (
         <section className="detail-section">
