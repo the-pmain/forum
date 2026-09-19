@@ -22,6 +22,35 @@ export function SourceList({ links, empty }: { links: string[]; empty: string })
   );
 }
 
+export function MiningDetails({ provider }: { provider: Provider }) {
+  const { t } = useI18n();
+  const mining = provider.mining!;
+  return (
+    <>
+      <div className="loan-detail-head">
+        <span className="loan-kind">{mining.productType}</span>
+        <span className={`pill rating-${mining.withdrawalRating.toLowerCase()}`}>{mining.withdrawalRating.replace("_", " / ")}</span>
+      </div>
+      <section className="detail-section">
+        <div className="limit-box loan-limit">
+          <strong>{t("mining.payout")}</strong>
+          <p>{mining.payoutMethod}</p>
+          <span className="small muted">{t(`mining.speedLabel.${mining.withdrawalSpeed}`)} · {mining.instantWithdrawal}</span>
+        </div>
+      </section>
+      <div className="age-grid">
+        <div className="detail-stat"><span>{t("mining.rewards")}</span><strong>{mining.rewards}</strong></div>
+        <div className="detail-stat"><span>{t("mining.kyc")}</span><strong>{mining.kyc}</strong></div>
+      </div>
+      <div className="callout warning loan-risk"><Icon name="info" />{t("mining.note")}</div>
+      <section className="detail-section"><h3>{t("mining.wallet")}</h3><p>{mining.externalWallet ? t("mining.external") : t("mining.custodial")}{mining.nonCustodial ? ` · ${t("mining.selfCustody")}` : ""}</p></section>
+      <section className="detail-section"><h3>{t("mining.rules")}</h3><p>{mining.withdrawalRules}</p></section>
+      <section className="detail-section"><h3>{t("mining.holding")}</h3><p>{mining.holdingRestrictions}</p></section>
+      <section className="detail-section"><h3>{t("mining.bestFor")}</h3><p>{mining.bestFor}</p></section>
+    </>
+  );
+}
+
 export function LendingDetails({ provider }: { provider: Provider }) {
   const { t } = useI18n();
   const lending = provider.lending!;
@@ -90,6 +119,7 @@ export function ProviderRecord({
     <>
       <section className="detail-section"><h3>{t("detail.glance")}</h3><p>{provider.service || provider.countryFocus || t("detail.noDescription")}</p></section>
       {provider.lending ? <LendingDetails provider={provider} /> : null}
+      {provider.mining ? <MiningDetails provider={provider} /> : null}
       <section className="detail-section"><h3>{t("detail.limits")}</h3><p>{provider.limitations || t("detail.noLimits")}</p></section>
       {provider.category === "Ramps" ? (
         <section className="detail-section">

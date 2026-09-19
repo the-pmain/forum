@@ -441,3 +441,200 @@
     align-items: stretch;
   }
 }
+
+.pin-card {
+  position: relative;
+  max-width: 380px;
+  padding: 28px 28px 32px;
+}
+
+.pin-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.pin-slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 8px 0 18px;
+}
+
+.pin-slot {
+  height: 52px;
+  border-radius: 12px;
+  border: 2px solid #c5d5d3;
+  background: #f7fbfb;
+  box-shadow: inset 0 0 0 0 #087e78;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pin-slot.is-filled {
+  border-color: #087e78;
+  background: #087e78;
+  box-shadow: inset 0 0 0 8px #e7f6f4;
+}
+
+.pin-slot.is-error {
+  border-color: #b42318;
+  background: #fef3f2;
+}
+
+.pin-error {
+  margin: -6px 0 14px;
+}
+
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.pin-key {
+  min-height: 56px;
+  border: 1px solid #d5e2e0;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.pin-key:hover:not(:disabled) {
+  background: #eef7f6;
+  border-color: #087e78;
+  color: #065f5b;
+}
+
+.pin-key.is-meta {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #3f5b66;
+}
+
+.provider-card.is-verified,
+.provider-table tr.is-verified td,
+.drawer-provider.is-verified {
+  background: #dcfce7;
+  color: #14532d;
+}
+
+.provider-card.is-verified {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 1px #16a34a inset;
+}
+
+.provider-card.is-verified .provider-name,
+.provider-card.is-verified .loan-amount > strong,
+.provider-card.is-verified .card-age,
+.provider-card.is-verified .category-tag,
+.drawer-provider.is-verified h2,
+.drawer-provider.is-verified .category-tag {
+  color: #14532d;
+}
+
+.provider-card.is-verified .card-inner,
+.provider-card.is-verified .card-actions {
+  background: #dcfce7;
+}
+
+.provider-card.is-hidden,
+.provider-table tr.is-hidden td,
+.drawer-provider.is-hidden {
+  background-image: repeating-linear-gradient(-45deg, rgba(180, 83, 9, 0.08) 0 12px, rgba(180, 83, 9, 0.16) 12px 24px);
+}
+
+.provider-card.is-hidden {
+  border-style: dashed;
+  border-color: #b45309;
+  opacity: 0.92;
+}
+
+.provider-card.is-verified.is-hidden .card-inner,
+.provider-card.is-verified.is-hidden .card-actions {
+  background: #dcfce7;
+}
+
+.verified-mark,
+.hidden-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.verified-mark {
+  background: #166534;
+  color: #f0fdf4;
+}
+
+.hidden-mark {
+  background: #9a3412;
+  color: #fff7ed;
+}
+
+.admin-entry-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-entry-controls .icon-btn.is-verified-btn {
+  color: #166534;
+  background: #bbf7d0;
+}
+
+.comment-item.is-admin {
+  background: #ecfdf5;
+  border: 1px solid #86efac;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.comment-admin-flag {
+  background: #166534;
+  color: #f0fdf4;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.comment-reply-btn {
+  margin-top: 8px;
+}
+
+.comment-reply-form {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.comment-replies {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0 0 0 12px;
+  border-left: 2px solid #bbf7d0;
+  display: grid;
+  gap: 10px;
+}
+
+.comment-item.is-reply {
+  border-top: 0;
+  padding-top: 0;
+}

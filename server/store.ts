@@ -2,42 +2,33 @@ import seedJson from "../data/seed.json" with { type: "json" };
 import { WORKSPACE_ID } from "../shared/constants.ts";
 import type { Provider, Workspace } from "../shared/types.ts";
 import { ensurePacks, fold, mergeWorkspaces, normaliseProvider, normaliseWorkspace } from "../shared/workspace.ts";
-import { hasSupabase } from "./config.ts";
-import { fetchWorkspaceRow, upsertWorkspaceRow } from "./supabase.ts";
 
-const seed = normaliseWorkspace(seedJson, WORKSPACE_ID);
+const seed = ensurePacks(normaliseWorkspace(seedJson, WORKSPACE_ID), normaliseWorkspace(seedJson, WORKSPACE_ID));
 let memory = structuredClone(seed);
 
-async function readWorkspace(): Promise<Workspace> {
-  if (!hasSupabase) return structuredClone(memory);
-  const row = await fetchWorkspaceRow(WORKSPACE_ID);
-  if (!row) {
-    const initial = ensurePacks(structuredClone(seed), seed);
-    await upsertWorkspaceRow(WORKSPACE_ID, initial);
-    return initial;
-  }
-  return ensurePacks(normaliseWorkspace(row.payload, WORKSPACE_ID), seed);
+function readWorkspace(): Workspace {
+  if (!memory.providers.length) memory = structuredClone(seed);
+  memory = ensurePacks(memory, seed);
+  return structuredClone(memory);
 }
 
-async function writeWorkspace(workspace: Workspace): Promise<Workspace> {
-  const next = {
+function writeWorkspace(workspace: Workspace): Workspace {
+  memory = {
     ...workspace,
     lastSaved: new Date().toISOString(),
     revision: workspace.revision + 1,
   };
-  if (hasSupabase) await upsertWorkspaceRow(WORKSPACE_ID, next);
-  else memory = structuredClone(next);
-  return next;
+  return structuredClone(memory);
 }
 
 export async function getWorkspace(includeTrash: boolean): Promise<Workspace> {
-  const workspace = await readWorkspace();
+  const workspace = readWorkspace();
   if (includeTrash) return workspace;
   return { ...workspace, trash: [] };
 }
 
 export async function saveProvider(input: unknown, existingId?: string): Promise<Workspace> {
-  const workspace = await readWorkspace();
+  const workspace = readWorkspace();
   const record = normaliseProvider(input);
   if (existingId && existingId !== record.id) throw new Error("Provider ID cannot change.");
   const duplicate = workspace.providers.some((item) => item.id !== record.id && fold(item.name) === fold(record.name));
@@ -52,7 +43,7 @@ export async function saveProvider(input: unknown, existingId?: string): Promise
 }
 
 export async function moveToTrash(id: string): Promise<Workspace> {
-  const workspace = await readWorkspace();
+  const workspace = readWorkspace();
   const provider = workspace.providers.find((item) => item.id === id);
   if (!provider) throw new Error("Provider not found.");
   workspace.providers = workspace.providers.filter((item) => item.id !== id);
@@ -61,7 +52,7 @@ export async function moveToTrash(id: string): Promise<Workspace> {
 }
 
 export async function restoreProvider(id: string): Promise<Workspace> {
-  const workspace = await readWorkspace();
+  const workspace = readWorkspace();
   const provider = workspace.trash.find((item) => item.id === id);
   if (!provider) throw new Error("Provider not found in trash.");
   if (workspace.providers.some((item) => fold(item.name) === fold(provider.name))) {
@@ -75,14 +66,14 @@ export async function restoreProvider(id: string): Promise<Workspace> {
 }
 
 export async function permanentDelete(id: string): Promise<Workspace> {
-  const workspace = await readWorkspace();
+  const workspace = readWorkspace();
   workspace.trash = workspace.trash.filter((item) => item.id !== id);
   workspace.favorites = workspace.favorites.filter((item) => item !== id);
   return writeWorkspace(workspace);
 }
 
 export async function emptyTrash(): Promise<Workspace> {
-  const workspace = await readWorkspace();
+  const workspace = readWorkspace();
   const ids = new Set(workspace.trash.map((item) => item.id));
   workspace.trash = [];
   workspace.favorites = workspace.favorites.filter((item) => !ids.has(item));
@@ -91,7 +82,7 @@ export async function emptyTrash(): Promise<Workspace> {
 
 export async function importWorkspace(raw: unknown, mode: "merge" | "replace" | "upgrade"): Promise<Workspace> {
   const incoming = normaliseWorkspace(raw, WORKSPACE_ID);
-  const current = await readWorkspace();
+  const current = readWorkspace();
   let next: Workspace;
   if (mode === "merge") next = mergeWorkspaces(current, incoming);
   else if (mode === "upgrade") next = ensurePacks(incoming, seed);
@@ -103,11 +94,28 @@ export async function exportWorkspace(): Promise<Workspace> {
   return readWorkspace();
 }
 
-export function publicise(workspace: Workspace, includeTrash: boolean): Workspace {
+export async function setProviderFlags(id: string, flags: { verified?: boolean; hidden?: boolean }): Promise<Workspace> {
+  const workspace = readWorkspace();
+  const index = workspace.providers.findIndex((item) => item.id === id);
+  if (index < 0) throw new Error("Provider not found.");
+  const current = workspace.providers[index];
+  workspace.providers[index] = {
+    ...current,
+    verified: flags.verified ?? current.verified === true,
+    hidden: flags.hidden ?? current.hidden === true,
+    updatedAt: new Date().toISOString(),
+  };
+  return writeWorkspace(workspace);
+}
+
+export function publicise(workspace: Workspace, includeHidden: boolean): Workspace {
   return {
     ...workspace,
-    trash: includeTrash ? workspace.trash : [],
-    favorites: includeTrash ? workspace.favorites : [],
+    providers: includeHidden
+      ? workspace.providers
+      : workspace.providers.filter((item) => (item.publicationStatus || "publish") === "publish" && item.hidden !== true),
+    trash: includeHidden ? workspace.trash : [],
+    favorites: includeHidden ? workspace.favorites : [],
   };
 }
 

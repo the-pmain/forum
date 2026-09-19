@@ -1,6 +1,7 @@
 import path from "node:path";
 import { createApp, frontendReady, resolveDist } from "./app.ts";
 import { assertProductionConfig, config, hasSupabase, isProduction } from "./config.ts";
+import { ensureCountries } from "./supabase.ts";
 
 assertProductionConfig();
 
@@ -13,8 +14,9 @@ const app = createApp();
 
 const server = app.listen(config.port, "0.0.0.0", () => {
   console.log(
-    `Financial Navigator API on :${config.port} (${isProduction ? "production" : "development"}, ${hasSupabase ? "supabase" : "memory"} store, frontend ${frontendReady(dist) ? dist : "missing"})`,
+    `Financial Navigator API on :${config.port} (${isProduction ? "production" : "development"}, directory from seed.json, comments ${hasSupabase ? "supabase" : "memory"}, frontend ${frontendReady(dist) ? dist : "missing"})`,
   );
+  if (hasSupabase) void ensureCountries();
 });
 
 server.on("error", (error) => {

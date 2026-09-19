@@ -2,7 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from "express"
 import { filterRecords } from "../../shared/filter.ts";
 import { DEFAULT_VIEW, type DirectoryView } from "../../shared/types.ts";
 import { newProviderId, normaliseProvider } from "../../shared/workspace.ts";
-import { config } from "../config.ts";
+import { config, hasSupabase } from "../config.ts";
 import { buildDirectoryDocx, buildDirectoryPdf, inspectPdf } from "../lib/documents.ts";
 import { rateLimit } from "../rateLimit.ts";
 import { clearSessionCookie, isAdmin, passwordsMatch, requireAdmin, setSessionCookie } from "../session.ts";
@@ -17,6 +17,7 @@ import {
   publicise,
   restoreProvider,
   saveProvider,
+  setProviderFlags,
 } from "../store.ts";
 
 function wrap(handler: (req: Request, res: Response) => Promise<void>) {
@@ -28,7 +29,7 @@ function wrap(handler: (req: Request, res: Response) => Promise<void>) {
 export const api = Router();
 
 api.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "financial-navigator" });
+  res.json({ ok: true, service: "financial-navigator", comments: hasSupabase ? "supabase" : "memory" });
 });
 
 api.get("/auth/me", (req, res) => {
@@ -36,9 +37,9 @@ api.get("/auth/me", (req, res) => {
 });
 
 api.post("/auth/login", rateLimit(60_000, 10), (req, res) => {
-  const password = typeof req.body?.password === "string" ? req.body.password : "";
-  if (!passwordsMatch(password, config.adminPassword)) {
-    res.status(401).json({ error: "Incorrect password." });
+  const pin = String(req.body?.pin ?? req.body?.password ?? "").replace(/\D/g, "");
+  if (!passwordsMatch(pin, config.adminPin)) {
+    res.status(401).json({ error: "Incorrect passcode." });
     return;
   }
   setSessionCookie(res);
@@ -71,6 +72,18 @@ api.put("/providers/:id", requireAdmin, rateLimit(60_000, 60), wrap(async (req, 
 
 api.delete("/providers/:id", requireAdmin, rateLimit(60_000, 60), wrap(async (req, res) => {
   const workspace = await moveToTrash(String(req.params.id));
+  res.json({ workspace: publicise(workspace, true), admin: true });
+}));
+
+api.patch("/providers/:id/moderation", requireAdmin, rateLimit(60_000, 120), wrap(async (req, res) => {
+  const flags: { verified?: boolean; hidden?: boolean } = {};
+  if (typeof req.body?.verified === "boolean") flags.verified = req.body.verified;
+  if (typeof req.body?.hidden === "boolean") flags.hidden = req.body.hidden;
+  if (!("verified" in flags) && !("hidden" in flags)) {
+    res.status(400).json({ error: "Set verified or hidden." });
+    return;
+  }
+  const workspace = await setProviderFlags(String(req.params.id), flags);
   res.json({ workspace: publicise(workspace, true), admin: true });
 }));
 
@@ -116,7 +129,8 @@ api.post("/entries/:slug/comments", rateLimit(60_000, 12), wrap(async (req, res)
       name: req.body?.name,
       body: req.body?.body,
       countrySlug: req.body?.countrySlug,
-    });
+      parentId: req.body?.parentId ?? req.body?.parent_id,
+    }, isAdmin(req));
     res.status(201).json({ comment });
   } catch (error) {
     res.status(400).json({ error: error instanceof Error ? error.message : "Could not save comment." });
@@ -125,7 +139,7 @@ api.post("/entries/:slug/comments", rateLimit(60_000, 12), wrap(async (req, res)
 
 api.post("/documents/pdf", rateLimit(60_000, 20), wrap(async (req, res) => {
   const admin = isAdmin(req);
-  const workspace = await getWorkspace(admin);
+  const workspace = publicise(await getWorkspace(admin), admin);
   const view = viewFromBody(req.body?.view);
   const records = view.mode === "trash" ? workspace.trash : workspace.providers;
   const providers = filterRecords(records, view, req.body?.favorites || []);
@@ -140,7 +154,7 @@ api.post("/documents/pdf", rateLimit(60_000, 20), wrap(async (req, res) => {
 
 api.post("/documents/docx", rateLimit(60_000, 20), wrap(async (req, res) => {
   const admin = isAdmin(req);
-  const workspace = await getWorkspace(admin);
+  const workspace = publicise(await getWorkspace(admin), admin);
   const view = viewFromBody(req.body?.view);
   const records = view.mode === "trash" ? workspace.trash : workspace.providers;
   const providers = filterRecords(records, view, req.body?.favorites || []);

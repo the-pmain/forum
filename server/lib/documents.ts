@@ -56,6 +56,7 @@ export async function buildDirectoryPdf(providers: Provider[], title: string): P
       `Upper age: ${provider.upperAgeStatus}`,
       countries ? `Markets: ${countries}` : "",
       lending ? `${lending.type} · ${lending.minimum || "Not verified"} · ${lending.security}` : "",
+      provider.mining ? `${provider.mining.productType} · ${provider.mining.withdrawalRating.replace("_", " / ")} · ${provider.mining.payoutMethod}` : "",
     ].filter(Boolean);
 
     const lines = body.flatMap((line) => wrap(line, 88));

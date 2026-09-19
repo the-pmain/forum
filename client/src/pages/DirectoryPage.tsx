@@ -6,17 +6,21 @@ import {
   COUNTRIES,
   COUNTRY_SLUGS,
   FAVORITES_KEY,
+  LOAN_GROUPS,
   LOAN_SECURITY,
   LOAN_SPEED,
   LOAN_TYPES,
   SLUG_TO_COUNTRY,
   UPPER_STATUSES,
   VIEW_KEY,
+  WITHDRAWAL_RATINGS,
+  WITHDRAWAL_SPEEDS,
 } from "@shared/constants.ts";
 import { categoryInfo, filterRecords, paginate } from "@shared/filter.ts";
 import type { DirectoryView, Workspace } from "@shared/types.ts";
 import { DEFAULT_VIEW } from "@shared/types.ts";
 import { MarketChips, StatusBadge } from "../components/ui.tsx";
+import { AdminEntryControls } from "../components/AdminEntryControls.tsx";
 import { useI18n, withLocale } from "../i18n/context.tsx";
 import { api, downloadDocument } from "../lib/api.ts";
 import { Icon } from "../lib/icons.tsx";
@@ -96,6 +100,10 @@ export function DirectoryPage({
   }, [favorites, view, hydrated]);
 
   useEffect(() => {
+    if (!admin && view.mode === "trash") setView((current) => ({ ...current, mode: "directory" }));
+  }, [admin, view.mode]);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const typing = ["INPUT", "TEXTAREA", "SELECT"].includes((event.target as HTMLElement)?.tagName);
       if (!typing && ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" || event.key === "/")) {
@@ -140,7 +148,9 @@ export function DirectoryPage({
   const categoryCounts = useMemo(() => filterRecords(records, view, favorites, true), [records, view, favorites]);
   const paging = paginate(filtered, view.page);
   const showLoans = view.category === "Loans & credit";
+  const showMining = view.category === "Mining Solutions";
   const showBanks = view.category === "High-street banks" && view.mode !== "trash";
+  const showAggregators = view.category === "Aggregators" && view.mode !== "trash";
   const requireAdmin = async () => {
     if (admin) return true;
     toast(t("toasts.needAdmin"));
@@ -176,11 +186,14 @@ export function DirectoryPage({
           <button className={`nav-button${view.mode === "favorites" ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "favorites", country: "all", category: "all", query: "", status: "all", upper: "all" }, true)}>
             <Icon name="star" />{t("nav.saved")}<span className="nav-count">{workspace.providers.filter((item) => favorites.includes(item.id)).length}</span>
           </button>
-          <button className={`nav-button${view.mode === "directory" && showLoans ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "Loans & credit", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all" }, true)}>
+          <button className={`nav-button${view.mode === "directory" && showLoans ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "Loans & credit", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all", loanGroup: "all", audience: "all", publication: "new_offers" }, true)}>
             <Icon name="wallet" />{t("nav.loans")}<span className="nav-count">{workspace.providers.filter((item) => item.category === "Loans & credit").length}</span>
           </button>
           <button className={`nav-button${view.mode === "directory" && view.category === "High-street banks" ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "High-street banks", query: "", status: "all", upper: "all" }, true)}>
             <Icon name="bank" />{t("nav.banks")}<span className="nav-count">{workspace.providers.filter((item) => item.category === "High-street banks").length}</span>
+          </button>
+          <button className={`nav-button${view.mode === "directory" && showMining ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "Mining Solutions", query: "", status: "all", upper: "all", miningSpeed: "all", miningRating: "all" }, true)}>
+            <Icon name="pickaxe" />{t("nav.mining")}<span className="nav-count">{workspace.providers.filter((item) => item.category === "Mining Solutions").length}</span>
           </button>
           <div className="nav-caption">{t("nav.countries")}</div>
           <button className={`nav-button country-nav${view.country === "all" ? " active" : ""}`} type="button" onClick={() => goCountry("all")}>
@@ -199,12 +212,16 @@ export function DirectoryPage({
           ))}
           <div className="sidebar-divider" />
           <div className="nav-caption">{t("nav.workspace")}</div>
-          <button className="nav-button" type="button" onClick={() => importRef.current?.click()}>
-            <Icon name="database" />{t("nav.backup")}
-          </button>
-          <button className={`nav-button${view.mode === "trash" ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "trash", country: "all", category: "all", query: "", status: "all", upper: "all" }, true)}>
-            <Icon name="trash" />{t("nav.trash")}<span className="nav-count">{workspace.trash.length}</span>
-          </button>
+          {admin ? (
+            <>
+              <button className="nav-button" type="button" onClick={() => importRef.current?.click()}>
+                <Icon name="database" />{t("nav.backup")}
+              </button>
+              <button className={`nav-button${view.mode === "trash" ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "trash", country: "all", category: "all", query: "", status: "all", upper: "all" }, true)}>
+                <Icon name="trash" />{t("nav.trash")}<span className="nav-count">{workspace.trash.length}</span>
+              </button>
+            </>
+          ) : null}
         </div>
         <div className="sidebar-foot">
           <div className="local-info"><span className="local-dot" />{t("nav.local")}</div>
@@ -221,7 +238,7 @@ export function DirectoryPage({
             <span className="crumb-root">{t("header.workspace")}</span>
             <span aria-hidden="true" className="crumb-root">/</span>
             <strong>
-              {view.mode === "trash" ? t("intro.crumbTrash") : view.mode === "favorites" ? t("intro.crumbSaved") : showLoans ? (view.country === "all" ? t("intro.crumbBorrow") : t("intro.crumbBorrowCountry", { country: view.country })) : view.country === "all" ? t("intro.crumb") : t("intro.crumbCountry", { country: view.country })}
+              {view.mode === "trash" ? t("intro.crumbTrash") : view.mode === "favorites" ? t("intro.crumbSaved") : showMining ? (view.country === "all" ? t("intro.crumbMining") : t("intro.crumbMiningCountry", { country: view.country })) : showLoans ? (view.country === "all" ? t("intro.crumbBorrow") : t("intro.crumbBorrowCountry", { country: view.country })) : view.country === "all" ? t("intro.crumb") : t("intro.crumbCountry", { country: view.country })}
             </strong>
           </div>
           <div className="top-actions">
@@ -257,8 +274,10 @@ export function DirectoryPage({
               <option value="nl">NL</option>
               <option value="de">DE</option>
             </select>
-            <Link className="btn" to={withLocale(locale, "/admin")}>{t("nav.admin")}</Link>
-            <button className="btn btn-primary" type="button" disabled onClick={() => goToEntry()}><Icon name="plus" />{t("header.add")}</button>
+            <Link className="btn" to={withLocale(locale, "/admin")}>{admin ? t("header.signedIn") : t("nav.admin")}</Link>
+            {admin ? (
+              <button className="btn btn-primary" type="button" onClick={() => goToEntry()}><Icon name="plus" />{t("header.add")}</button>
+            ) : null}
           </div>
         </header>
 
@@ -267,10 +286,10 @@ export function DirectoryPage({
             <div>
               <div className="eyebrow">{view.country === "all" ? t("intro.eyebrowAll") : view.country}</div>
               <h1 id="pageTitle">
-                {view.mode === "trash" ? t("intro.titleTrash") : view.mode === "favorites" ? t("intro.titleSaved") : showLoans ? (view.country === "all" ? t("intro.titleLoans") : t("intro.titleLoansCountry", { country: view.country })) : view.country !== "all" ? t("intro.titleCountry", { country: view.country }) : t("intro.title")}
+                {view.mode === "trash" ? t("intro.titleTrash") : view.mode === "favorites" ? t("intro.titleSaved") : showMining ? (view.country === "all" ? t("intro.titleMining") : t("intro.titleMiningCountry", { country: view.country })) : showLoans ? (view.country === "all" ? t("intro.titleLoans") : t("intro.titleLoansCountry", { country: view.country })) : view.country !== "all" ? t("intro.titleCountry", { country: view.country }) : t("intro.title")}
               </h1>
               <p>
-                {view.mode === "trash" ? t("intro.descriptionTrash") : view.mode === "favorites" ? t("intro.descriptionSaved") : showLoans ? t("intro.descriptionLoans") : view.country !== "all" ? t("intro.descriptionCountry") : t("intro.description")}
+                {view.mode === "trash" ? t("intro.descriptionTrash") : view.mode === "favorites" ? t("intro.descriptionSaved") : showMining ? t("intro.descriptionMining") : showLoans ? t("intro.descriptionLoans") : view.country !== "all" ? t("intro.descriptionCountry") : t("intro.description")}
               </p>
             </div>
             <div className="stats-inline">
@@ -308,6 +327,13 @@ export function DirectoryPage({
             </div>
           ) : null}
 
+          {showAggregators ? (
+            <div className="callout bank-notice">
+              <Icon name="layers" />
+              <div><strong>{t("notices.aggregatorTitle")}</strong><p>{t("notices.aggregatorBody")}</p></div>
+            </div>
+          ) : null}
+
           {showLoans && view.mode !== "trash" ? (
             <div className="loan-notice">
               <div className="loan-notice-icon"><Icon name="shield" /></div>
@@ -316,10 +342,18 @@ export function DirectoryPage({
             </div>
           ) : null}
 
+          {showMining && view.mode !== "trash" ? (
+            <div className="loan-notice mining-notice">
+              <div className="loan-notice-icon"><Icon name="pickaxe" /></div>
+              <div><strong>{t("notices.miningTitle")}</strong><p>{t("notices.miningBody")}</p></div>
+              <Link className="link-btn" to={withLocale(locale, "/help")}>{t("notices.readGuide")} <span aria-hidden="true">↗</span></Link>
+            </div>
+          ) : null}
+
           {view.mode === "trash" ? (
             <div className="callout trash-banner">
               <span>{t("notices.trash")}</span>
-              <button className="btn btn-sm btn-danger" type="button" disabled onClick={async () => {
+              <button className="btn btn-sm btn-danger" type="button" onClick={async () => {
                 if (!(await requireAdmin())) return;
                 if (await ask(t("confirm.emptyTitle"), t("confirm.empty", { count: workspace.trash.length }), t("confirm.emptyAction"))) {
                   setWorkspace((await api.emptyTrash()).workspace);
@@ -355,25 +389,44 @@ export function DirectoryPage({
                   {UPPER_STATUSES.map((item) => <option key={item} value={item}>{item}</option>)}
                 </select>
               </label>
-              <button className="filter-reset" type="button" onClick={() => navigateView({ country: "all", category: "all", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all" })}>
+              <button className="filter-reset" type="button" onClick={() => navigateView({ country: "all", category: "all", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all", loanGroup: "all", audience: "all", publication: "new_offers", miningSpeed: "all", miningRating: "all" })}>
                 <Icon name="reset" />{t("filters.clear")}
               </button>
             </div>
             {showLoans ? (
               <>
                 <nav className="loan-shortcuts" aria-label="Borrowing shortcuts">
-                  {(["all", "cards", "small", "new"] as const).map((shortcut) => (
-                    <button key={shortcut} className={`btn btn-sm${(shortcut === "cards" ? view.loanType === "Credit card" && view.loanMinimum === "all" : shortcut === "small" ? view.loanMinimum === "small" : shortcut === "new" ? view.loanMinimum === "new" : view.loanType === "all" && view.loanMinimum === "all") ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "Loans & credit", query: "", status: "all", upper: "all", loanType: shortcut === "cards" ? "Credit card" : "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: shortcut === "small" || shortcut === "new" ? shortcut : "all" }, true)}>
-                      {t(shortcut === "all" ? "filters.allBorrowing" : shortcut === "cards" ? "filters.cards" : shortcut === "small" ? "filters.small" : "filters.neu")}
+                  <button className={`btn btn-sm${view.loanGroup === "all" && view.loanType === "all" && view.loanMinimum === "all" && view.audience === "all" ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "Loans & credit", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all", loanGroup: "all", audience: "all" }, true)}>{t("filters.allBorrowing")}</button>
+                  {LOAN_GROUPS.map((group) => (
+                    <button key={group.id} className={`btn btn-sm${view.loanGroup === group.id ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "Loans & credit", loanType: "all", loanGroup: group.id, loanMinimum: "all", audience: "all" }, true)}>
+                      {t(`filters.group.${group.id}`)}
                     </button>
                   ))}
+                  <button className={`btn btn-sm${view.category === "Aggregators" ? " active" : ""}`} type="button" onClick={() => navigateView({ mode: "directory", category: "Aggregators", loanType: "all", loanGroup: "all", audience: "all" }, true)}>{t("filters.compare")}</button>
                   <span>{t("filters.shortcutNote")}</span>
+                </nav>
+                <nav className="loan-shortcuts audience-shortcuts" aria-label="Cross filters">
+                  <button className={`btn btn-sm${view.audience === "small" || view.loanMinimum === "small" ? " active" : ""}`} type="button" onClick={() => navigateView({ audience: "small", loanMinimum: "small" })}>{t("filters.small")}</button>
+                  <button className={`btn btn-sm${view.audience === "senior" ? " active" : ""}`} type="button" onClick={() => navigateView({ audience: "senior" })}>{t("filters.senior")}</button>
+                  <button className={`btn btn-sm${view.audience === "homeowner" ? " active" : ""}`} type="button" onClick={() => navigateView({ audience: "homeowner" })}>{t("filters.homeowner")}</button>
+                  <button className={`btn btn-sm${view.audience === "self_employed" ? " active" : ""}`} type="button" onClick={() => navigateView({ audience: "self_employed" })}>{t("filters.selfEmployed")}</button>
+                  {admin ? (
+                    <label className="filter-label publication-filter">
+                      <span>{t("filters.publication")}</span>
+                      <select className="filter-select" value={view.publication} onChange={(event) => navigateView({ publication: event.target.value as DirectoryView["publication"] })}>
+                        <option value="new_offers">{t("filters.newOffers")}</option>
+                        <option value="all">{t("filters.allPublication")}</option>
+                        <option value="review_hold">{t("filters.reviewHold")}</option>
+                        <option value="legacy">{t("filters.legacy")}</option>
+                      </select>
+                    </label>
+                  ) : null}
                 </nav>
                 <div className="loan-filter-panel">
                   <div className="loan-filter-title">{t("filters.borrowTitle")} <span>{t("filters.borrowHint")}</span></div>
                   <div className="loan-filter-grid">
                     <label>{t("filters.productType")}
-                      <select value={view.loanType} onChange={(event) => navigateView({ loanType: event.target.value as DirectoryView["loanType"] })}>
+                      <select value={view.loanType} onChange={(event) => navigateView({ loanType: event.target.value as DirectoryView["loanType"], loanGroup: "all" })}>
                         <option value="all">{t("filters.allTypes")}</option>
                         {LOAN_TYPES.map((item) => <option key={item} value={item}>{item}</option>)}
                       </select>
@@ -402,6 +455,25 @@ export function DirectoryPage({
                 </div>
               </>
             ) : null}
+            {showMining ? (
+              <div className="loan-filter-panel">
+                <div className="loan-filter-title">{t("filters.miningTitle")} <span>{t("filters.miningHint")}</span></div>
+                <div className="loan-filter-grid mining-filter-grid">
+                  <label>{t("filters.miningSpeed")}
+                    <select value={view.miningSpeed} onChange={(event) => navigateView({ miningSpeed: event.target.value as DirectoryView["miningSpeed"] })}>
+                      <option value="all">{t("filters.allMiningSpeed")}</option>
+                      {WITHDRAWAL_SPEEDS.map((item) => <option key={item} value={item}>{t(`mining.speedLabel.${item}`)}</option>)}
+                    </select>
+                  </label>
+                  <label>{t("filters.miningRating")}
+                    <select value={view.miningRating} onChange={(event) => navigateView({ miningRating: event.target.value as DirectoryView["miningRating"] })}>
+                      <option value="all">{t("filters.allMiningRating")}</option>
+                      {WITHDRAWAL_RATINGS.map((item) => <option key={item} value={item}>{item.replace("_", " / ")}</option>)}
+                    </select>
+                  </label>
+                </div>
+              </div>
+            ) : null}
           </section>
 
           <div className="active-chips">
@@ -410,6 +482,9 @@ export function DirectoryPage({
             {view.status !== "all" ? <button className="filter-chip" type="button" onClick={() => navigateView({ status: "all" })}>{view.status}<Icon name="x" /></button> : null}
             {view.upper !== "all" ? <button className="filter-chip" type="button" onClick={() => navigateView({ upper: "all" })}>{t("filters.upperChip", { value: view.upper })}<Icon name="x" /></button> : null}
             {view.query ? <button className="filter-chip" type="button" onClick={() => navigateView({ query: "" })}>{t("filters.searchChip", { query: view.query })}<Icon name="x" /></button> : null}
+            {view.loanGroup !== "all" ? <button className="filter-chip" type="button" onClick={() => navigateView({ loanGroup: "all" })}>{t(`filters.group.${view.loanGroup}`)}<Icon name="x" /></button> : null}
+            {view.audience !== "all" ? <button className="filter-chip" type="button" onClick={() => navigateView({ audience: "all", loanMinimum: view.loanMinimum === "small" ? "all" : view.loanMinimum })}>{t(`filters.${view.audience === "self_employed" ? "selfEmployed" : view.audience}`)}<Icon name="x" /></button> : null}
+            {view.miningRating !== "all" ? <button className="filter-chip" type="button" onClick={() => navigateView({ miningRating: "all" })}>{view.miningRating.replace("_", " / ")}<Icon name="x" /></button> : null}
           </div>
 
           <section aria-labelledby="resultsTitle">
@@ -436,20 +511,22 @@ export function DirectoryPage({
                 <span className="empty-icon"><Icon name={view.mode === "favorites" ? "star" : view.mode === "trash" ? "trash" : "search"} /></span>
                 <h2>{view.mode === "trash" ? t("results.emptyTrash") : view.mode === "favorites" ? t("results.emptySaved") : t("results.empty")}</h2>
                 <p>{view.mode === "favorites" ? t("results.emptySavedHint") : view.mode === "trash" ? t("results.emptyTrashHint") : t("results.emptyHint")}</p>
-                <button className="btn" type="button" onClick={() => navigateView({ country: "all", category: "all", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all" })}>{t("filters.clear")}</button>
-                <button className="btn btn-primary" type="button" disabled={view.mode === "directory"} onClick={() => view.mode === "directory" ? goToEntry() : navigateView({ mode: "directory" })}>{view.mode === "directory" ? t("results.add") : t("results.browse")}</button>
+                <button className="btn" type="button" onClick={() => navigateView({ country: "all", category: "all", query: "", status: "all", upper: "all", loanType: "all", loanSecurity: "all", loanSpeed: "all", loanMinimum: "all", loanGroup: "all", audience: "all", publication: "new_offers", miningSpeed: "all", miningRating: "all" })}>{t("filters.clear")}</button>
+                <button className="btn btn-primary" type="button" disabled={view.mode === "directory" && !admin} onClick={() => view.mode === "directory" ? goToEntry() : navigateView({ mode: "directory" })}>{view.mode === "directory" ? t("results.add") : t("results.browse")}</button>
               </div>
             ) : view.layout === "grid" ? (
               <div className="provider-grid">
                 {paging.visible.map((provider) => (
-                  <article key={provider.id} className="provider-card" data-category={provider.category}>
+                  <article key={provider.id} className={`provider-card${provider.verified ? " is-verified" : ""}${provider.hidden ? " is-hidden" : ""}`} data-category={provider.category}>
                     <Link className="card-hit" to={providerHref(provider.id)} aria-label={provider.name} />
                     <div className="card-inner">
                       <div className="card-header">
                         <div className="avatar" aria-hidden="true">{initials(provider.name)}</div>
                         <div className="card-title">
                           <span className="provider-name">{provider.name}</span>
-                          <div className="category-tag">{provider.lending?.type || categoryInfo(provider.category).label}</div>
+                          <div className="category-tag">{provider.lending?.type || provider.mining?.productType || categoryInfo(provider.category).label}</div>
+                          {provider.verified ? <span className="verified-mark"><Icon name="badgeCheck" /> {t("admin.verifiedMark")}</span> : null}
+                          {admin && provider.hidden ? <span className="hidden-mark"><Icon name="eyeOff" /> {t("admin.hiddenMark")}</span> : null}
                         </div>
                         {view.mode !== "trash" ? (
                           <button className={`icon-btn${favorites.includes(provider.id) ? " is-favorite" : ""}`} type="button" aria-pressed={favorites.includes(provider.id)} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setFavorites((list) => list.includes(provider.id) ? list.filter((id) => id !== provider.id) : [...list, provider.id]); }}>
@@ -469,21 +546,36 @@ export function DirectoryPage({
                           <div className="loan-meta-line"><Icon name="clock" /><span>{provider.lending.speed}</span></div>
                         </div>
                       ) : null}
+                      {provider.category === "Mining Solutions" && provider.mining ? (
+                        <div className="loan-card-meta">
+                          <div className="loan-amount"><span>{t("mining.rating")}</span><strong className={`rating-label rating-${provider.mining.withdrawalRating.toLowerCase()}`}>{provider.mining.withdrawalRating.replace("_", " / ")}</strong></div>
+                          <div className="loan-meta-line"><Icon name="clock" /><span>{t(`mining.speedLabel.${provider.mining.withdrawalSpeed}`)}</span></div>
+                          <div className="loan-meta-line"><Icon name="unlock" /><span>{provider.mining.externalWallet ? t("mining.external") : t("mining.custodial")}</span></div>
+                        </div>
+                      ) : null}
                       <div className="card-age"><Icon name="shield" />{t("results.upperAge")} <strong>{provider.upperAgeStatus}</strong></div>
                     </div>
                     <div className="card-actions">
                       {view.mode === "trash" ? (
                         <>
-                          <button className="link-btn" type="button" disabled onClick={async () => { if (await requireAdmin()) { setWorkspace((await api.restoreProvider(provider.id)).workspace); toast(t("toasts.restored", { name: provider.name })); } }}><Icon name="reset" /> {t("results.restore")}</button>
-                          <button className="icon-btn danger" type="button" disabled onClick={async () => { if (await requireAdmin() && await ask(t("confirm.deleteTitle"), t("confirm.delete", { name: provider.name }), t("confirm.deleteAction"))) { setWorkspace((await api.permanentDelete(provider.id)).workspace); toast(t("toasts.deleted", { name: provider.name })); } }}><Icon name="trash" /></button>
+                          <button className="link-btn" type="button" onClick={async () => { if (await requireAdmin()) { setWorkspace((await api.restoreProvider(provider.id)).workspace); toast(t("toasts.restored", { name: provider.name })); } }}><Icon name="reset" /> {t("results.restore")}</button>
+                          <button className="icon-btn danger" type="button" onClick={async () => { if (await requireAdmin() && await ask(t("confirm.deleteTitle"), t("confirm.delete", { name: provider.name }), t("confirm.deleteAction"))) { setWorkspace((await api.permanentDelete(provider.id)).workspace); toast(t("toasts.deleted", { name: provider.name })); } }}><Icon name="trash" /></button>
                         </>
                       ) : (
                         <>
                           <Link className="link-btn" to={providerHref(provider.id)}>{t("results.viewDetails")} <Icon name="right" /></Link>
-                          <div className="card-action-icons">
-                            <button className="icon-btn" type="button" disabled onClick={() => goToEntry(provider.id)}><Icon name="edit" /></button>
-                            <button className="icon-btn danger" type="button" disabled onClick={async () => { if (await requireAdmin() && await ask(t("confirm.trashTitle"), t("confirm.trash", { name: provider.name }), t("confirm.trashAction"))) { setWorkspace((await api.trashProvider(provider.id)).workspace); toast(t("toasts.trashed", { name: provider.name })); } }}><Icon name="trash" /></button>
-                          </div>
+                          <AdminEntryControls
+                            admin={admin}
+                            provider={provider}
+                            onEdit={() => goToEntry(provider.id)}
+                            onWorkspace={(next, message) => { setWorkspace(next); toast(message); }}
+                            onRemove={async () => {
+                              if (await ask(t("confirm.trashTitle"), t("confirm.trash", { name: provider.name }), t("confirm.trashAction"))) {
+                                setWorkspace((await api.trashProvider(provider.id)).workspace);
+                                toast(t("toasts.trashed", { name: provider.name }));
+                              }
+                            }}
+                          />
                         </>
                       )}
                     </div>
@@ -492,11 +584,13 @@ export function DirectoryPage({
               </div>
             ) : (
               <div className="table-wrap">
-                <table className={`provider-table${showLoans ? " loan-table" : ""}`}>
+                <table className={`provider-table${showLoans || showMining ? " loan-table" : ""}`}>
                   <thead>
                     <tr>
                       {showLoans ? (
                         <><th>{t("table.product")}</th><th>{t("table.type")}</th><th>{t("table.amount")}</th><th>{t("table.funding")}</th><th>{t("table.upper")}</th><th>{t("table.actions")}</th></>
+                      ) : showMining ? (
+                        <><th>{t("table.provider")}</th><th>{t("table.type")}</th><th>{t("table.rating")}</th><th>{t("table.withdrawal")}</th><th>{t("table.upper")}</th><th>{t("table.actions")}</th></>
                       ) : (
                         <><th>{t("table.provider")}</th><th>{t("table.category")}</th><th>{t("table.flag")}</th><th>{t("table.records")}</th><th>{t("table.upper")}</th><th>{t("table.actions")}</th></>
                       )}
@@ -504,19 +598,29 @@ export function DirectoryPage({
                   </thead>
                   <tbody>
                     {paging.visible.map((provider) => (
-                      <tr key={provider.id} data-category={provider.category} className="table-row-link" onClick={(event) => { if (!(event.target as HTMLElement).closest("button, a")) routerNavigate(providerHref(provider.id)); }}>
+                      <tr key={provider.id} data-category={provider.category} className={`table-row-link${provider.verified ? " is-verified" : ""}${provider.hidden ? " is-hidden" : ""}`} onClick={(event) => { if (!(event.target as HTMLElement).closest("button, a")) routerNavigate(providerHref(provider.id)); }}>
                         <td>
                           <div className="table-provider">
-                            {!showLoans ? <div className="avatar" aria-hidden="true">{initials(provider.name)}</div> : null}
+                            {!showLoans && !showMining ? <div className="avatar" aria-hidden="true">{initials(provider.name)}</div> : null}
                             <Link className="provider-name" to={providerHref(provider.id)}>{provider.name}</Link>
+                            {provider.verified ? <span className="verified-mark"><Icon name="badgeCheck" /> {t("admin.verifiedMark")}</span> : null}
+                            {admin && provider.hidden ? <span className="hidden-mark"><Icon name="eyeOff" /> {t("admin.hiddenMark")}</span> : null}
                           </div>
                           {showLoans ? <div className="market-chips" style={{ marginTop: 7 }}><MarketChips provider={provider} country={view.country} /></div> : null}
+                          {showMining ? <div className="market-chips" style={{ marginTop: 7 }}><MarketChips provider={provider} country={view.country} /></div> : null}
                         </td>
                         {showLoans ? (
                           <>
                             <td><span className="small">{provider.lending?.type}</span><div className="tiny muted" style={{ marginTop: 5 }}>{provider.lending?.security}</div></td>
                             <td><strong className="small">{provider.lending?.minimum || "Not verified"}</strong><div className="tiny muted" style={{ marginTop: 5 }}>{provider.lending?.minimumBasis}</div></td>
                             <td><span className="small">{provider.lending?.speed}</span><div className="tiny muted" style={{ marginTop: 5 }}>{provider.lending?.decision}</div></td>
+                            <td className="small">{provider.upperAgeStatus}<div className="tiny muted" style={{ marginTop: 5 }}>{provider.ageEligibility}</div></td>
+                          </>
+                        ) : showMining ? (
+                          <>
+                            <td><span className="small">{provider.mining?.productType}</span><div className="tiny muted" style={{ marginTop: 5 }}>{provider.mining?.rewards}</div></td>
+                            <td><strong className="small">{(provider.mining?.withdrawalRating || "").replace("_", " / ")}</strong><div className="tiny muted" style={{ marginTop: 5 }}>{provider.mining?.kyc}</div></td>
+                            <td><span className="small">{provider.mining ? t(`mining.speedLabel.${provider.mining.withdrawalSpeed}`) : ""}</span><div className="tiny muted" style={{ marginTop: 5 }}>{provider.mining?.instantWithdrawal}</div></td>
                             <td className="small">{provider.upperAgeStatus}<div className="tiny muted" style={{ marginTop: 5 }}>{provider.ageEligibility}</div></td>
                           </>
                         ) : (
@@ -530,14 +634,25 @@ export function DirectoryPage({
                         <td className="table-actions">
                           {view.mode === "trash" ? (
                             <>
-                              <button className="icon-btn" type="button" disabled onClick={async () => { if (await requireAdmin()) { setWorkspace((await api.restoreProvider(provider.id)).workspace); toast(t("toasts.restored", { name: provider.name })); } }}><Icon name="reset" /></button>
-                              <button className="icon-btn danger" type="button" disabled onClick={async () => { if (await requireAdmin() && await ask(t("confirm.deleteTitle"), t("confirm.delete", { name: provider.name }), t("confirm.deleteAction"))) { setWorkspace((await api.permanentDelete(provider.id)).workspace); toast(t("toasts.deleted", { name: provider.name })); } }}><Icon name="trash" /></button>
+                              <button className="icon-btn" type="button" onClick={async () => { if (await requireAdmin()) { setWorkspace((await api.restoreProvider(provider.id)).workspace); toast(t("toasts.restored", { name: provider.name })); } }}><Icon name="reset" /></button>
+                              <button className="icon-btn danger" type="button" onClick={async () => { if (await requireAdmin() && await ask(t("confirm.deleteTitle"), t("confirm.delete", { name: provider.name }), t("confirm.deleteAction"))) { setWorkspace((await api.permanentDelete(provider.id)).workspace); toast(t("toasts.deleted", { name: provider.name })); } }}><Icon name="trash" /></button>
                             </>
                           ) : (
                             <>
                               <button className={`icon-btn${favorites.includes(provider.id) ? " is-favorite" : ""}`} type="button" onClick={() => setFavorites((list) => list.includes(provider.id) ? list.filter((id) => id !== provider.id) : [...list, provider.id])}><Icon name="star" /></button>
-                              <button className="icon-btn" type="button" disabled onClick={() => goToEntry(provider.id)}><Icon name="edit" /></button>
-                              <button className="icon-btn danger" type="button" disabled onClick={async () => { if (await requireAdmin() && await ask(t("confirm.trashTitle"), t("confirm.trash", { name: provider.name }), t("confirm.trashAction"))) { setWorkspace((await api.trashProvider(provider.id)).workspace); toast(t("toasts.trashed", { name: provider.name })); } }}><Icon name="trash" /></button>
+                              <AdminEntryControls
+                                admin={admin}
+                                provider={provider}
+                                compact
+                                onEdit={() => goToEntry(provider.id)}
+                                onWorkspace={(next, message) => { setWorkspace(next); toast(message); }}
+                                onRemove={async () => {
+                                  if (await ask(t("confirm.trashTitle"), t("confirm.trash", { name: provider.name }), t("confirm.trashAction"))) {
+                                    setWorkspace((await api.trashProvider(provider.id)).workspace);
+                                    toast(t("toasts.trashed", { name: provider.name }));
+                                  }
+                                }}
+                              />
                             </>
                           )}
                         </td>

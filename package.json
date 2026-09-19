@@ -11,6 +11,7 @@
     "dev:server": "tsx watch server/index.ts",
     "dev:client": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build && tsx scripts/prerender.ts",
+    "catalog": "node scripts/import-catalog.mjs",
     "start": "tsx server/index.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

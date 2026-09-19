@@ -4,6 +4,7 @@ import { COUNTRY_SLUGS, FAVORITES_KEY, SLUG_TO_COUNTRY } from "@shared/constants
 import { categoryInfo, providerURL } from "@shared/filter.ts";
 import type { Workspace } from "@shared/types.ts";
 import { CommentSection } from "../components/CommentSection.tsx";
+import { AdminEntryControls } from "../components/AdminEntryControls.tsx";
 import { ProviderRecord } from "../components/ProviderRecord.tsx";
 import { useI18n, withLocale } from "../i18n/context.tsx";
 import { Icon } from "../lib/icons.tsx";
@@ -19,7 +20,15 @@ function readFavorites(): string[] {
   }
 }
 
-export function ProviderPage({ workspace }: { workspace: Workspace }) {
+export function ProviderPage({
+  workspace,
+  setWorkspace,
+  admin,
+}: {
+  workspace: Workspace;
+  setWorkspace: (workspace: Workspace) => void;
+  admin: boolean;
+}) {
   const { t, locale } = useI18n();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -27,6 +36,7 @@ export function ProviderPage({ workspace }: { workspace: Workspace }) {
   const countryQuery = searchParams.get("country")?.toLowerCase() || "";
   const countrySlug = countryQuery in SLUG_TO_COUNTRY ? countryQuery : undefined;
   const provider = [...workspace.providers, ...workspace.trash].find((item) => item.id === slug);
+  const visible = Boolean(provider && (admin || provider.hidden !== true));
   const [tab, setTab] = useState<"overview" | "age" | "sources">("overview");
   const [favorites, setFavorites] = useState(readFavorites);
   const saved = Boolean(provider && favorites.includes(provider.id));
@@ -38,7 +48,7 @@ export function ProviderPage({ workspace }: { workspace: Workspace }) {
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
   }
 
-  if (!provider) {
+  if (!provider || !visible) {
     return (
       <main className="entry-page">
         <header className="entry-topbar">
@@ -73,7 +83,11 @@ export function ProviderPage({ workspace }: { workspace: Workspace }) {
               {t("detail.website")} <Icon name="external" />
             </a>
           ) : null}
-          <button className="btn" type="button" disabled><Icon name="edit" />{t("detail.edit")}</button>
+          <AdminEntryControls
+            admin={admin}
+            provider={provider}
+            onWorkspace={(next) => { setWorkspace(next); }}
+          />
           <button className={`btn${saved ? " is-favorite" : ""}`} type="button" onClick={toggleFavorite}>
             <Icon name="star" />{saved ? t("detail.saved") : t("detail.save")}
           </button>
@@ -81,11 +95,13 @@ export function ProviderPage({ workspace }: { workspace: Workspace }) {
       </header>
 
       <div className="provider-page-head">
-        <div className="drawer-provider" data-category={provider.category}>
+        <div className={`drawer-provider${provider.verified ? " is-verified" : ""}${provider.hidden ? " is-hidden" : ""}`} data-category={provider.category}>
           <div className="avatar">{initials(provider.name)}</div>
           <div>
             <h2>{provider.name}</h2>
-            <span className="category-tag">{provider.lending?.type || categoryInfo(provider.category).label}</span>
+            <span className="category-tag">{provider.lending?.type || provider.mining?.productType || categoryInfo(provider.category).label}</span>
+            {provider.verified ? <span className="verified-mark"><Icon name="badgeCheck" /> {t("admin.verifiedMark")}</span> : null}
+            {admin && provider.hidden ? <span className="hidden-mark"><Icon name="eyeOff" /> {t("admin.hiddenMark")}</span> : null}
           </div>
         </div>
         <div className="drawer-tabs" role="tablist">
@@ -101,6 +117,7 @@ export function ProviderPage({ workspace }: { workspace: Workspace }) {
         <ProviderRecord provider={provider} tab={tab} />
         <CommentSection
           slug={provider.id}
+          admin={admin}
           countrySlug={countrySlug || (provider.countryFocus && COUNTRY_SLUGS[provider.countryFocus as keyof typeof COUNTRY_SLUGS])}
         />
         <footer className="drawer-footer">

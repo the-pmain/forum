@@ -8,10 +8,13 @@ import {
   FAVORITES_KEY,
   LOAN_SECURITY,
   LOAN_TYPES,
+  PUBLICATION_STATUSES,
   STATUSES,
   UPPER_STATUSES,
+  WITHDRAWAL_RATINGS,
+  WITHDRAWAL_SPEEDS,
 } from "@shared/constants.ts";
-import type { Category, Country, DirectoryView, Lending, Provider, Status, Workspace } from "@shared/types.ts";
+import type { Category, Country, DirectoryView, Lending, Mining, Provider, Status, Workspace } from "@shared/types.ts";
 import { newProviderId, normaliseProvider } from "@shared/workspace.ts";
 import { useI18n, withLocale } from "../i18n/context.tsx";
 import { api } from "../lib/api.ts";
@@ -38,6 +41,10 @@ function emptyProvider(country: DirectoryView["country"], category: DirectoryVie
     origin: "User-added",
     notes: "",
     updatedAt: "",
+    publicationStatus: "publish",
+    tags: [],
+    verified: false,
+    hidden: false,
   };
 }
 
@@ -61,6 +68,23 @@ function defaultLending(): Lending {
     repayment: "",
     minimumValue: null,
     smallCredit: false,
+  };
+}
+
+function defaultMining(): Mining {
+  return {
+    productType: "",
+    rewards: "BTC",
+    kyc: "",
+    externalWallet: true,
+    nonCustodial: true,
+    withdrawalSpeed: "instant_fast",
+    withdrawalRating: "YELLOW",
+    instantWithdrawal: "",
+    payoutMethod: "",
+    withdrawalRules: "",
+    holdingRestrictions: "",
+    bestFor: "",
   };
 }
 
@@ -104,6 +128,7 @@ export function EntryPage({
   }, [start, existing]);
 
   const lending = draft.lending || defaultLending();
+  const mining = draft.mining || defaultMining();
   const missing = Boolean(id && !existing);
 
   function setField<K extends keyof Provider>(key: K, value: Provider[K]) {
@@ -130,6 +155,7 @@ export function EntryPage({
       const record = normaliseProvider({
         ...draft,
         lending: draft.category === "Loans & credit" ? lending : undefined,
+        mining: draft.category === "Mining Solutions" ? mining : undefined,
         updatedAt: new Date().toISOString(),
         origin: draft.origin || "User-added",
       });
@@ -157,7 +183,7 @@ export function EntryPage({
         </div>
         <div className="entry-topbar-actions">
           <Link className="btn" to={withLocale(locale, "/")}>{t("form.cancel")}</Link>
-          <button className="btn btn-primary" type="button" disabled onClick={submit}>
+          <button className="btn btn-primary" type="button" disabled={!admin || busy} onClick={submit}>
             <Icon name="check" /> {t("form.save")}
           </button>
         </div>
@@ -172,13 +198,18 @@ export function EntryPage({
             <h2>{t("form.notFound")}</h2>
             <Link className="btn btn-primary" to={withLocale(locale, "/")}>{t("results.browse")}</Link>
           </div>
-        ) : (
+        ) : !admin ? null : (
           <>
             <div className="form-grid">
               <label className="field"><span>{t("form.name")}</span><input value={draft.name} maxLength={120} onChange={(event) => setField("name", event.target.value)} /></label>
               <label className="field"><span>{t("form.category")}</span>
                 <select value={draft.category} onChange={(event) => setField("category", event.target.value as Category)}>
                   {CATEGORIES.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
+              </label>
+              <label className="field"><span>{t("form.publication")}</span>
+                <select value={draft.publicationStatus} onChange={(event) => setField("publicationStatus", event.target.value as Provider["publicationStatus"])}>
+                  {PUBLICATION_STATUSES.map((item) => <option key={item} value={item}>{t(`filters.${item === "publish" ? "newOffers" : item === "review_hold" ? "reviewHold" : "legacy"}`)}</option>)}
                 </select>
               </label>
               <label className="field"><span>{t("form.website")}</span><input value={draft.website} onChange={(event) => setField("website", event.target.value)} placeholder="https://…" /></label>
@@ -255,6 +286,31 @@ export function EntryPage({
               </>
             ) : null}
 
+            {draft.category === "Mining Solutions" ? (
+              <>
+                <div className="form-divider"><h3>{t("form.mining")}</h3><p>{t("form.miningHint")}</p></div>
+                <div className="form-grid">
+                  <label className="field"><span>{t("mining.type")}</span><input value={mining.productType} onChange={(event) => setField("mining", { ...mining, productType: event.target.value })} /></label>
+                  <label className="field"><span>{t("mining.rewards")}</span><input value={mining.rewards} onChange={(event) => setField("mining", { ...mining, rewards: event.target.value })} /></label>
+                  <label className="field"><span>{t("filters.miningSpeed")}</span>
+                    <select value={mining.withdrawalSpeed} onChange={(event) => setField("mining", { ...mining, withdrawalSpeed: event.target.value as Mining["withdrawalSpeed"] })}>
+                      {WITHDRAWAL_SPEEDS.map((item) => <option key={item} value={item}>{t(`mining.speedLabel.${item}`)}</option>)}
+                    </select>
+                  </label>
+                  <label className="field"><span>{t("filters.miningRating")}</span>
+                    <select value={mining.withdrawalRating} onChange={(event) => setField("mining", { ...mining, withdrawalRating: event.target.value as Mining["withdrawalRating"] })}>
+                      {WITHDRAWAL_RATINGS.map((item) => <option key={item} value={item}>{item.replace("_", " / ")}</option>)}
+                    </select>
+                  </label>
+                  <label className="field full-width"><span>{t("mining.payout")}</span><textarea value={mining.payoutMethod} onChange={(event) => setField("mining", { ...mining, payoutMethod: event.target.value })} /></label>
+                  <label className="field full-width"><span>{t("mining.rules")}</span><textarea value={mining.withdrawalRules} onChange={(event) => setField("mining", { ...mining, withdrawalRules: event.target.value })} /></label>
+                  <label className="field full-width">
+                    <span className="checkbox-label"><input type="checkbox" checked={mining.externalWallet} onChange={(event) => setField("mining", { ...mining, externalWallet: event.target.checked })} />{t("mining.external")}</span>
+                  </label>
+                </div>
+              </>
+            ) : null}
+
             <div className="form-divider"><h3>{t("form.sources")}</h3><p>{t("form.sourcesHint")}</p></div>
             <div className="form-grid">
               <label className="field"><span>{t("form.ageSources")}</span><textarea value={draft.sources.age.join("\n")} onChange={(event) => setDraft((current) => ({ ...current, sources: { ...current.sources, age: event.target.value.split("\n") } }))} /></label>
@@ -267,7 +323,7 @@ export function EntryPage({
               <label className="checkbox-label"><input type="checkbox" checked={favorite} onChange={(event) => setFavorite(event.target.checked)} />{t("form.favorite")}</label>
               <div className="footer-actions">
                 <Link className="btn" to={withLocale(locale, "/")}>{t("form.cancel")}</Link>
-                <button className="btn btn-primary" type="button" disabled onClick={submit}>
+                <button className="btn btn-primary" type="button" disabled={!admin || busy} onClick={submit}>
                   <Icon name="check" /> {t("form.save")}
                 </button>
               </div>

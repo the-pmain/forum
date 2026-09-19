@@ -25,8 +25,8 @@ export function badgeClass(status: string): string {
 
 export function loanAmountLabel(type?: string): string {
   if (type === "Credit card") return "loan.cardAmount";
-  if (type === "Card instalments") return "loan.instalment";
-  if (type === "Overdraft / credit line") return "loan.facility";
+  if (type === "Card instalments" || type === "BNPL / pay later" || type === "Device / hire purchase") return "loan.instalment";
+  if (type === "Overdraft / credit line" || type === "Revolving / retail credit") return "loan.facility";
   return "loan.application";
 }
 
@@ -39,6 +39,7 @@ export function csvCell(value: unknown): string {
 export function exportCsv(records: Provider[], view: DirectoryView) {
   const withLimits = view.category === "Ramps";
   const withLoans = records.some((item) => item.category === "Loans & credit");
+  const withMining = records.some((item) => item.category === "Mining Solutions");
   const headers = [
     "Provider / product",
     "Category",
@@ -71,8 +72,11 @@ export function exportCsv(records: Provider[], view: DirectoryView) {
       "Repayment structure",
       "Term",
       "Interest / fees",
-      "Small-credit group",
-    );
+        "Small-credit group",
+      );
+  }
+  if (withMining) {
+    headers.push("Mining type", "Rewards", "Withdrawal rating", "Withdrawal speed", "Payout method", "KYC");
   }
   headers.push("Age / product sources", "Country / service sources", "Source review date", "Review scope");
 
@@ -99,6 +103,17 @@ export function exportCsv(records: Provider[], view: DirectoryView) {
           (key) => lending[key] || "",
         ),
         lending.smallCredit ? "Yes" : "",
+      );
+    }
+    if (withMining) {
+      const mining = provider.mining;
+      row.push(
+        mining?.productType || "",
+        mining?.rewards || "",
+        mining?.withdrawalRating || "",
+        mining?.withdrawalSpeed || "",
+        mining?.payoutMethod || "",
+        mining?.kyc || "",
       );
     }
     row.push(provider.sources.age.join("\n"), provider.sources.service.join("\n"), provider.sourceDate, provider.reviewNote);

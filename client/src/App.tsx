@@ -17,9 +17,10 @@ const seed = normaliseWorkspace(seedJson, WORKSPACE_ID);
 function initialWorkspace(): Workspace {
   if (typeof window !== "undefined" && window.__NAVIGATOR__) {
     try {
-      return normaliseWorkspace(window.__NAVIGATOR__, WORKSPACE_ID);
+      const injected = normaliseWorkspace(window.__NAVIGATOR__, WORKSPACE_ID);
+      if (injected.providers.length) return injected;
     } catch {
-      return seed;
+      /* keep bundled seed */
     }
   }
   return seed;
@@ -43,14 +44,14 @@ function AppRoutes({
       <Route path="/admin" element={<AdminLoginPage admin={admin} onAuth={setAdmin} />} />
       <Route path="/entry" element={<EntryPage workspace={workspace} setWorkspace={setWorkspace} admin={admin} />} />
       <Route path="/entry/:id" element={<EntryPage workspace={workspace} setWorkspace={setWorkspace} admin={admin} />} />
-      <Route path="/p/:id" element={<ProviderPage workspace={workspace} />} />
+      <Route path="/p/:id" element={<ProviderPage workspace={workspace} setWorkspace={setWorkspace} admin={admin} />} />
       {LOCALES.filter((item) => item !== DEFAULT_LOCALE).flatMap((locale) => [
         <Route key={`${locale}-home`} path={`/${locale}`} element={<DirectoryPage workspace={workspace} setWorkspace={setWorkspace} admin={admin} />} />,
         <Route key={`${locale}-help`} path={`/${locale}/help`} element={<HelpPage />} />,
         <Route key={`${locale}-admin`} path={`/${locale}/admin`} element={<AdminLoginPage admin={admin} onAuth={setAdmin} />} />,
         <Route key={`${locale}-entry`} path={`/${locale}/entry`} element={<EntryPage workspace={workspace} setWorkspace={setWorkspace} admin={admin} />} />,
         <Route key={`${locale}-entry-id`} path={`/${locale}/entry/:id`} element={<EntryPage workspace={workspace} setWorkspace={setWorkspace} admin={admin} />} />,
-        <Route key={`${locale}-provider`} path={`/${locale}/p/:id`} element={<ProviderPage workspace={workspace} />} />,
+        <Route key={`${locale}-provider`} path={`/${locale}/p/:id`} element={<ProviderPage workspace={workspace} setWorkspace={setWorkspace} admin={admin} />} />,
       ])}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -65,19 +66,33 @@ export function App() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([api.workspace(), api.me()])
-      .then(([data, me]) => {
-        if (cancelled) return;
-        setWorkspace(normaliseWorkspace({ ...data.workspace, favorites: data.workspace.favorites || [], appliedPacks: data.workspace.appliedPacks || [] }, WORKSPACE_ID));
-        setAdmin(me.admin || data.admin);
+    api.me()
+      .then((me) => {
+        if (!cancelled) setAdmin(me.admin);
       })
       .catch(() => {
-        /* keep seed / prerendered workspace */
+        /* keep signed-out seed directory */
       });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    api.workspace()
+      .then((data) => {
+        if (cancelled || !data.workspace?.providers?.length) return;
+        setWorkspace(normaliseWorkspace({ ...data.workspace, favorites: data.workspace.favorites || [], appliedPacks: data.workspace.appliedPacks || [] }, WORKSPACE_ID));
+        if (data.admin) setAdmin(true);
+      })
+      .catch(() => {
+        /* keep bundled seed */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [admin]);
 
   return (
     <I18nProvider locale={locale}>

@@ -10,10 +10,17 @@ import {
   LOAN_SPEED,
   LOAN_TEXT_KEYS,
   LOAN_TYPES,
+  MINING_PACK_ID,
+  MINING_TEXT_KEYS,
+  NL_CREDIT_PACK_ID,
+  EUROPE_CREDIT_PACK_ID,
+  PUBLICATION_STATUSES,
   STATUSES,
   UPPER_STATUSES,
+  WITHDRAWAL_RATINGS,
+  WITHDRAWAL_SPEEDS,
 } from "./constants.ts";
-import type { Lending, Provider, Workspace } from "./types.ts";
+import type { Lending, Mining, Provider, Workspace } from "./types.ts";
 
 export function fold(value: unknown): string {
   return String(value || "")
@@ -65,6 +72,28 @@ export function normaliseLending(raw: unknown): Lending {
   return out;
 }
 
+export function normaliseMining(raw: unknown): Mining {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error("A mining product needs its withdrawal details.");
+  }
+  const source = raw as Record<string, unknown>;
+  const out = {} as Mining;
+  for (const key of MINING_TEXT_KEYS) {
+    (out as unknown as Record<string, unknown>)[key] = text(source[key], 30000);
+  }
+  if (!WITHDRAWAL_SPEEDS.includes(source.withdrawalSpeed as Mining["withdrawalSpeed"])) {
+    throw new Error("Select a supported mining withdrawal-speed label.");
+  }
+  if (!WITHDRAWAL_RATINGS.includes(source.withdrawalRating as Mining["withdrawalRating"])) {
+    throw new Error("Select a supported mining withdrawal rating.");
+  }
+  out.withdrawalSpeed = source.withdrawalSpeed as Mining["withdrawalSpeed"];
+  out.withdrawalRating = source.withdrawalRating as Mining["withdrawalRating"];
+  out.externalWallet = source.externalWallet === true;
+  out.nonCustodial = source.nonCustodial === true;
+  return out;
+}
+
 export function normaliseProvider(raw: unknown): Provider {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Invalid provider record.");
   const source = raw as Record<string, unknown>;
@@ -88,6 +117,12 @@ export function normaliseProvider(raw: unknown): Provider {
     origin: text(source.origin, 200),
     notes: text(source.notes),
     updatedAt: text(source.updatedAt, 100),
+    publicationStatus: PUBLICATION_STATUSES.includes(source.publicationStatus as Provider["publicationStatus"])
+      ? source.publicationStatus as Provider["publicationStatus"]
+      : "publish",
+    tags: Array.isArray(source.tags)
+      ? [...new Set(source.tags.filter((item): item is string => typeof item === "string" && item.length <= 80))].slice(0, 40)
+      : [],
   };
   if (!provider.id || !provider.name || !CATEGORIES.includes(provider.category)) {
     throw new Error("Every provider needs a unique ID, a name and a supported category.");
@@ -140,7 +175,11 @@ export function normaliseProvider(raw: unknown): Provider {
     provider.maxPayment = text(source.maxPayment);
   }
   if (provider.category === "Loans & credit") provider.lending = normaliseLending(source.lending);
+  if (provider.category === "Mining Solutions") provider.mining = normaliseMining(source.mining);
+  if (source.providerGroupId) provider.providerGroupId = text(source.providerGroupId, 120);
   if (source.deletedAt) provider.deletedAt = text(source.deletedAt, 100);
+  provider.verified = source.verified === true;
+  provider.hidden = source.hidden === true;
   return provider;
 }
 
@@ -227,6 +266,18 @@ export function ensurePacks(workspace: Workspace, seed: Workspace): Workspace {
   if (!next.appliedPacks.includes(CARD_PACK_ID)) {
     addMissing(seed.providers.filter((item) => CARD_PACK_IDS.includes(item.id as (typeof CARD_PACK_IDS)[number])));
     next.appliedPacks.push(CARD_PACK_ID);
+  }
+  if (!next.appliedPacks.includes(NL_CREDIT_PACK_ID)) {
+    addMissing(seed.providers.filter((item) => item.origin === "nl-consumer-credit/1.0"));
+    next.appliedPacks.push(NL_CREDIT_PACK_ID);
+  }
+  if (!next.appliedPacks.includes(EUROPE_CREDIT_PACK_ID)) {
+    addMissing(seed.providers.filter((item) => item.origin === "europe-consumer-credit/1.0"));
+    next.appliedPacks.push(EUROPE_CREDIT_PACK_ID);
+  }
+  if (!next.appliedPacks.includes(MINING_PACK_ID)) {
+    addMissing(seed.providers.filter((item) => item.origin === "mining-solutions-europe/1.0"));
+    next.appliedPacks.push(MINING_PACK_ID);
   }
   return next;
 }

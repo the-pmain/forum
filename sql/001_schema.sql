@@ -1,5 +1,5 @@
--- Financial Navigator workspace, consumed through Supabase PostgREST (HTTP).
--- Run in the Supabase SQL editor, then expose the table to the service role.
+-- Unused by the app. Directory records live in data/seed.json.
+-- Kept so an existing empty table is harmless. Do not load providers into this row.
 
 create table if not exists public.navigator_workspace (
   id text primary key,
@@ -13,4 +13,4 @@ alter table public.navigator_workspace enable row level security;
 -- No anon policies: the public API reads through Express, not the browser.
 
 comment on table public.navigator_workspace is
-  'Single-row JSON workspace for the Financial Navigator directory.';
+  'Unused leftover. Directory records live in data/seed.json.';

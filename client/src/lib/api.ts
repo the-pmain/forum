@@ -26,20 +26,22 @@ export interface WorkspaceResponse {
 
 export const api = {
   me: () => request<{ admin: boolean }>("/api/auth/me"),
-  login: (password: string) => request<{ admin: boolean }>("/api/auth/login", { method: "POST", body: JSON.stringify({ password }) }),
+  login: (pin: string) => request<{ admin: boolean }>("/api/auth/login", { method: "POST", body: JSON.stringify({ pin }) }),
   logout: () => request<{ admin: boolean }>("/api/auth/logout", { method: "POST" }),
   workspace: () => request<WorkspaceResponse>("/api/workspace"),
   createProvider: (provider: Provider) => request<WorkspaceResponse>("/api/providers", { method: "POST", body: JSON.stringify(provider) }),
   updateProvider: (provider: Provider) => request<WorkspaceResponse>(`/api/providers/${provider.id}`, { method: "PUT", body: JSON.stringify(provider) }),
   trashProvider: (id: string) => request<WorkspaceResponse>(`/api/providers/${id}`, { method: "DELETE" }),
   restoreProvider: (id: string) => request<WorkspaceResponse>(`/api/providers/${id}/restore`, { method: "POST" }),
+  moderateProvider: (id: string, flags: { verified?: boolean; hidden?: boolean }) =>
+    request<WorkspaceResponse>(`/api/providers/${id}/moderation`, { method: "PATCH", body: JSON.stringify(flags) }),
   permanentDelete: (id: string) => request<WorkspaceResponse>(`/api/providers/${id}/permanent`, { method: "DELETE" }),
   emptyTrash: () => request<WorkspaceResponse>("/api/trash/empty", { method: "POST" }),
   exportWorkspace: () => request<Workspace & { exportedAt: string }>("/api/workspace/export"),
   importWorkspace: (workspace: unknown, mode: "merge" | "replace" | "upgrade") =>
     request<WorkspaceResponse>("/api/workspace/import", { method: "POST", body: JSON.stringify({ workspace, mode }) }),
   comments: (slug: string) => request<{ comments: EntryComment[] }>(`/api/entries/${encodeURIComponent(slug)}/comments`),
-  addComment: (slug: string, payload: { name: string; body: string; countrySlug?: string }) =>
+  addComment: (slug: string, payload: { name: string; body: string; countrySlug?: string; parentId?: string }) =>
     request<{ comment: EntryComment }>(`/api/entries/${encodeURIComponent(slug)}/comments`, {
       method: "POST",
       body: JSON.stringify(payload),

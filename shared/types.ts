@@ -1,13 +1,18 @@
 import type {
   AGE_EVIDENCE,
+  AUDIENCE_FILTERS,
   CATEGORIES,
   COUNTRIES,
   LOCALES,
+  LOAN_GROUPS,
   LOAN_SECURITY,
   LOAN_SPEED,
   LOAN_TYPES,
+  PUBLICATION_STATUSES,
   STATUSES,
   UPPER_STATUSES,
+  WITHDRAWAL_RATINGS,
+  WITHDRAWAL_SPEEDS,
 } from "./constants.ts";
 
 export type Country = (typeof COUNTRIES)[number];
@@ -18,6 +23,11 @@ export type AgeEvidence = (typeof AGE_EVIDENCE)[number];
 export type LoanType = (typeof LOAN_TYPES)[number];
 export type LoanSecurity = (typeof LOAN_SECURITY)[number];
 export type LoanSpeed = (typeof LOAN_SPEED)[number];
+export type LoanGroup = (typeof LOAN_GROUPS)[number]["id"];
+export type AudienceFilter = (typeof AUDIENCE_FILTERS)[number];
+export type PublicationStatus = (typeof PUBLICATION_STATUSES)[number];
+export type WithdrawalSpeed = (typeof WITHDRAWAL_SPEEDS)[number];
+export type WithdrawalRating = (typeof WITHDRAWAL_RATINGS)[number];
 export type Locale = (typeof LOCALES)[number];
 
 export interface CountryEntry {
@@ -48,6 +58,21 @@ export interface Lending {
   smallCredit: boolean;
 }
 
+export interface Mining {
+  productType: string;
+  rewards: string;
+  kyc: string;
+  externalWallet: boolean;
+  nonCustodial: boolean;
+  withdrawalSpeed: WithdrawalSpeed;
+  withdrawalRating: WithdrawalRating;
+  instantWithdrawal: string;
+  payoutMethod: string;
+  withdrawalRules: string;
+  holdingRestrictions: string;
+  bestFor: string;
+}
+
 export interface Provider {
   id: string;
   name: string;
@@ -71,7 +96,13 @@ export interface Provider {
   minPayment?: string;
   maxPayment?: string;
   lending?: Lending;
+  mining?: Mining;
+  publicationStatus: PublicationStatus;
+  tags: string[];
+  providerGroupId?: string;
   deletedAt?: string;
+  verified?: boolean;
+  hidden?: boolean;
 }
 
 export interface Workspace {
@@ -93,6 +124,7 @@ export type ViewMode = "directory" | "favorites" | "trash";
 export type ViewLayout = "grid" | "list";
 export type SortKey = "az" | "za" | "updated";
 export type LoanMinimumFilter = "all" | "published" | "small" | "new";
+export type PublicationFilter = "new_offers" | "all" | PublicationStatus;
 
 export interface DirectoryView {
   mode: ViewMode;
@@ -108,6 +140,11 @@ export interface DirectoryView {
   loanSecurity: "all" | LoanSecurity;
   loanSpeed: "all" | LoanSpeed;
   loanMinimum: LoanMinimumFilter;
+  loanGroup: "all" | LoanGroup;
+  audience: "all" | AudienceFilter;
+  publication: PublicationFilter;
+  miningSpeed: "all" | WithdrawalSpeed;
+  miningRating: "all" | WithdrawalRating;
 }
 
 export const DEFAULT_VIEW: DirectoryView = {
@@ -124,6 +161,11 @@ export const DEFAULT_VIEW: DirectoryView = {
   loanSecurity: "all",
   loanSpeed: "all",
   loanMinimum: "all",
+  loanGroup: "all",
+  audience: "all",
+  publication: "new_offers",
+  miningSpeed: "all",
+  miningRating: "all",
 };
 
 export interface EntryComment {
@@ -133,6 +175,8 @@ export interface EntryComment {
   author_name: string;
   body: string;
   created_at: string;
+  is_admin: boolean;
+  parent_id: string | null;
 }
 
 export interface PublicWorkspace {

@@ -4,7 +4,7 @@ Paste everything below into the Supabase SQL editor (or the Supabase AI / SQL as
 
 ---
 
-Create two tables for a Node/Express app that talks to Supabase through PostgREST only (service role, RLS on, no anon policies). Do not create a providers or entries table. Provider directory records stay in the existing `public.navigator_workspace` JSON row and in the Express server. Comments are the only new user-generated data.
+Create two tables for a Node/Express app that talks to Supabase through PostgREST only (service role, RLS on, no anon policies). Do not create a providers or entries table. Provider directory records stay in `data/seed.json` in the Express/React app. Comments are the only user-generated data in Postgres.
 
 Requirements:
 
@@ -25,10 +25,12 @@ Requirements:
 
 3. Enable RLS on both tables. Do not add anon or authenticated policies. The Express server uses `SUPABASE_SERVICE_ROLE_KEY` and bypasses RLS.
 
-4. Do not touch `public.navigator_workspace`. Do not add triggers, views, or storage buckets.
+4. Do not touch `public.navigator_workspace` if it exists. Do not add triggers, views, or storage buckets.
 
 Return only the SQL.
 
 ---
 
 The checked-in file `sql/002_comments.sql` is the same schema, ready to run.
+
+For admin comments (`is_admin`, `parent_id`), use `sql/SUPABASE_COMMENTS_ADMIN_PROMPT.md` or run `sql/004_comments_admin.sql`.
