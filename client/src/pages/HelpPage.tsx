@@ -20,7 +20,7 @@ export function HelpPage() {
             </div>
             <div className="help-card">
               <h3>Make it yours</h3>
-              <p>Visitors can save a personal shortlist in this browser. Adding, editing, hiding or deleting a shared record needs an admin PIN. Hidden records stay visible to the admin with a Hidden mark.</p>
+              <p>Visitors can save a personal shortlist in this browser. Adding, editing, hiding or deleting a shared record needs the admin password. Hidden records stay visible to the admin with a Hidden mark.</p>
             </div>
           </div>
           <h3>Understand the country flags</h3>

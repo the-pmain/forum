@@ -37,9 +37,9 @@ api.get("/auth/me", (req, res) => {
 });
 
 api.post("/auth/login", rateLimit(60_000, 10), (req, res) => {
-  const pin = String(req.body?.pin ?? req.body?.password ?? "").replace(/\D/g, "");
-  if (!passwordsMatch(pin, config.adminPin)) {
-    res.status(401).json({ error: "Incorrect passcode." });
+  const password = String(req.body?.password ?? "");
+  if (!config.adminPass || !passwordsMatch(password, config.adminPass)) {
+    res.status(401).json({ error: "Incorrect password." });
     return;
   }
   setSessionCookie(res);

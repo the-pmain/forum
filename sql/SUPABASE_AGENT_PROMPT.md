@@ -14,7 +14,7 @@ Only public comments and a small country lookup.
 
 Do **not** create tables named providers, entries, loans, products, catalogue, or similar.
 
-Do **not** store directory records, verified flags, hidden flags, PIN/admin sessions, or catalogue packs in Postgres. Those live in the Express/React app (`data/seed.json` + server memory). Admin PIN, verify, hide, edit, and delete never touch this database.
+Do **not** store directory records, verified flags, hidden flags, admin sessions, or catalogue packs in Postgres. Those live in the Express/React app (`data/seed.json` + server memory). Admin password, verify, hide, edit, and delete never touch this database.
 
 If `public.navigator_workspace` already exists, **leave it**. Do not insert catalogue JSON. Do not empty it. Do not drop it unless the user explicitly asks. The app does not read that table.
 
@@ -57,7 +57,7 @@ Create if missing, then **alter** existing installs so they match this shape. Ke
 | `author_name` | text not null | trimmed length 2–80 |
 | `body` | text not null | trimmed length 2–2000 (HTML allowed by the app; DB only checks length) |
 | `created_at` | timestamptz not null | default `now()` |
-| `is_admin` | boolean not null | default `false`. Express sets this when the admin PIN cookie is present on `POST /api/entries/:slug/comments`. Admin rows are listed first. |
+| `is_admin` | boolean not null | default `false`. Express sets this when the admin cookie is present on `POST /api/entries/:slug/comments`. Admin rows are listed first. |
 | `parent_id` | uuid null | FK to `navigator_comments.id` on delete cascade. One-level admin reply. Null = top-level. Express rejects replies-to-replies. |
 
 Existing rows: `is_admin` stays false; `parent_id` stays null.

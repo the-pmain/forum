@@ -40,7 +40,7 @@ export interface WorkspaceResponse {
 
 export const api = {
   me: () => request<{ admin: boolean }>("/api/auth/me"),
-  login: (pin: string) => request<{ admin: boolean }>("/api/auth/login", { method: "POST", body: JSON.stringify({ pin }) }),
+  login: (password: string) => request<{ admin: boolean }>("/api/auth/login", { method: "POST", body: JSON.stringify({ password }) }),
   logout: () => request<{ admin: boolean }>("/api/auth/logout", { method: "POST" }),
   workspace: () => request<WorkspaceResponse>("/api/workspace"),
   createProvider: (provider: Provider) => request<WorkspaceResponse>("/api/providers", { method: "POST", body: JSON.stringify(provider) }),

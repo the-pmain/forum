@@ -174,7 +174,6 @@ export const CARD_PACK_IDS = [
 
 export const LOCALES = ["en", "nl", "de"] as const;
 export const DEFAULT_LOCALE = "en";
-export const ADMIN_PIN_LENGTH = 4;
 export const WORKSPACE_ID = "nl-de-nordics-2026-v1";
 export const FAVORITES_KEY = `financial-navigator-v1:${WORKSPACE_ID}:favorites`;
 export const VIEW_KEY = `financial-navigator-v1:${WORKSPACE_ID}:view`;

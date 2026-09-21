@@ -58,8 +58,8 @@ export function requireAdmin(req: Request, res: Response, next: () => void): voi
 }
 
 export function passwordsMatch(provided: string, expected: string): boolean {
-  const left = Buffer.from(provided);
-  const right = Buffer.from(expected);
+  const left = Buffer.from(provided, "utf8");
+  const right = Buffer.from(expected, "utf8");
   if (left.length !== right.length) return false;
   return timingSafeEqual(left, right);
 }

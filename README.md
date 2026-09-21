@@ -35,7 +35,7 @@ In the Railway service, set:
 | Variable | Required | Notes |
 | --- | --- | --- |
 | `SESSION_SECRET` | yes | Random string, 24+ characters |
-| `ADMIN_PIN` | yes | Four digits for `/admin`. Not a trivial sequence in production. |
+| `ADMIN_PASS` | yes | Password for `/admin`. At least 8 characters in production. |
 | `SUPABASE_URL` | yes for comments | Project URL, with or without `/rest/v1` |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes for comments | Server-only; never the anon key |
 | `NODE_ENV` | set by Railway | `production` |
@@ -44,7 +44,7 @@ Without Supabase the directory still boots from `data/seed.json`. Comments need 
 
 ## Admin
 
-Set `SESSION_SECRET` and `ADMIN_PIN` (four digits). Open **Admin** and enter the PIN on the keypad. Visitors can browse, filter, save a local shortlist, and export CSV / PDF / DOCX. Verify, hide, add, edit, remove, import, and admin comment replies need the admin cookie. Hidden entries stay in server memory and are omitted for visitors; the admin still sees them marked Hidden. Verified entries stay in the app, not in Postgres.
+Set `SESSION_SECRET` and `ADMIN_PASS`. Open **Admin** and enter the password. Visitors can browse, filter, save a local shortlist, and export CSV / PDF / DOCX. Verify, hide, add, edit, remove, import, and admin comment replies need the admin cookie. Hidden entries stay in server memory and are omitted for visitors; the admin still sees them marked Hidden. Verified entries stay in the app, not in Postgres.
 
 ## Data
 
