@@ -27,6 +27,7 @@ export const config = {
   adminPin: rawPin.length === 4 ? rawPin : "2580",
   supabaseUrl: process.env.SUPABASE_URL || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+  allowedAddresses: process.env.ALLOWED_ADDRESSES || "",
   cookieName: "fn_session",
   sessionTtlMs: 12 * 60 * 60 * 1000,
 };

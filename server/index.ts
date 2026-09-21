@@ -1,9 +1,17 @@
 import path from "node:path";
+import { allowedAddresses, invalidAllowedAddresses } from "./allowlist.ts";
 import { createApp, frontendReady, resolveDist } from "./app.ts";
 import { assertProductionConfig, config, hasSupabase, isProduction } from "./config.ts";
 import { ensureCountries } from "./supabase.ts";
 
 assertProductionConfig();
+
+if (invalidAllowedAddresses.length) {
+  console.warn(`ALLOWED_ADDRESSES skipped invalid entries: ${invalidAllowedAddresses.join(", ")}`);
+}
+if (isProduction && allowedAddresses.size === 0) {
+  throw new Error("Set ALLOWED_ADDRESSES to a comma-separated list of client IPs before starting in production.");
+}
 
 const dist = resolveDist();
 if (isProduction && !frontendReady(dist)) {
@@ -14,7 +22,7 @@ const app = createApp();
 
 const server = app.listen(config.port, "0.0.0.0", () => {
   console.log(
-    `Financial Navigator API on :${config.port} (${isProduction ? "production" : "development"}, directory from seed.json, comments ${hasSupabase ? "supabase" : "memory"}, frontend ${frontendReady(dist) ? dist : "missing"})`,
+    `Financial Navigator API on :${config.port} (${isProduction ? "production" : "development"}, directory from seed.json, comments ${hasSupabase ? "supabase" : "memory"}, frontend ${frontendReady(dist) ? dist : "missing"}, allowlist ${allowedAddresses.size})`,
   );
   if (hasSupabase) void ensureCountries();
 });
