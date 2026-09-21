@@ -429,6 +429,10 @@ export const nl: Messages = {
     hidden: "“{name}” is verborgen voor bezoekers.",
     shown: "“{name}” is weer zichtbaar voor bezoekers.",
   },
+  access: {
+    deniedTitle: "Toegang geweigerd",
+    deniedBody: "Dit adres mag de toepassing niet gebruiken.",
+  },
   help: {
     title: "Een gids die op uw manier werkt.",
     lead: "Vind, orden en onderhoud uw aanbiederrecords.",

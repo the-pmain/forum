@@ -1,11 +1,12 @@
 import path from "node:path";
-import { allowedAddresses, invalidAllowedAddresses } from "./allowlist.ts";
+import { loadAllowlist } from "./allowlist.ts";
 import { createApp, frontendReady, resolveDist } from "./app.ts";
 import { assertProductionConfig, config, hasSupabase, isProduction } from "./config.ts";
 import { ensureCountries } from "./supabase.ts";
 
 assertProductionConfig();
 
+const { allowed: allowedAddresses, invalid: invalidAllowedAddresses } = loadAllowlist();
 if (invalidAllowedAddresses.length) {
   console.warn(`ALLOWED_ADDRESSES skipped invalid entries: ${invalidAllowedAddresses.join(", ")}`);
 }

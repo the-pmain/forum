@@ -1,5 +1,19 @@
 import type { DirectoryView, EntryComment, Provider, Workspace } from "@shared/types.ts";
 
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+export function isAccessDenied(error: unknown): boolean {
+  if (error instanceof ApiError) return error.status === 403;
+  return error instanceof Error && error.message === "Access denied.";
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     credentials: "same-origin",
@@ -14,7 +28,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       /* keep default */
     }
-    throw new Error(message);
+    throw new ApiError(message, response.status);
   }
   return (await response.json()) as T;
 }
@@ -56,7 +70,7 @@ export async function downloadDocument(kind: "pdf" | "docx" | "csv", view: Direc
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ view, favorites, title }),
   });
-  if (!response.ok) throw new Error("Document export failed.");
+  if (!response.ok) throw new ApiError("Document export failed.", response.status);
   const blob = await response.blob();
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

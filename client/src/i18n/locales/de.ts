@@ -429,6 +429,10 @@ export const de: Messages = {
     hidden: "„{name}“ ist für Besucher ausgeblendet.",
     shown: "„{name}“ ist für Besucher wieder sichtbar.",
   },
+  access: {
+    deniedTitle: "Zugriff verweigert",
+    deniedBody: "Diese Adresse darf die Anwendung nicht verwenden.",
+  },
   help: {
     title: "Ein Verzeichnis, das sich nach Ihnen richtet.",
     lead: "Finden, ordnen und pflegen Sie Ihre Anbieterdatensätze.",

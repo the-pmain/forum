@@ -433,6 +433,10 @@ export const en = {
     back: "Back to directory",
     pageTitle: "Help & data notes",
   },
+  access: {
+    deniedTitle: "Access denied",
+    deniedBody: "This address is not allowed to use the application.",
+  },
   admin: {
     title: "Passcode",
     lead: "Enter four digits to open the admin console.",

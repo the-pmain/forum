@@ -3,7 +3,7 @@ import express from "express";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { allowlistMiddleware } from "./allowlist.ts";
+import { allowlistMiddleware, isTrustedProxyHop } from "./allowlist.ts";
 import { api } from "./routes/api.ts";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -21,7 +21,7 @@ export function createApp() {
   const app = express();
   const dist = resolveDist();
   app.disable("x-powered-by");
-  app.set("trust proxy", 1);
+  app.set("trust proxy", isTrustedProxyHop);
   app.use(allowlistMiddleware);
   app.use(cookieParser());
   app.use(express.json({ limit: "10mb" }));

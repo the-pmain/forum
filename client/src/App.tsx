@@ -5,7 +5,8 @@ import { DEFAULT_LOCALE, LOCALES, WORKSPACE_ID } from "@shared/constants.ts";
 import type { Locale, Workspace } from "@shared/types.ts";
 import { normaliseWorkspace } from "@shared/workspace.ts";
 import { I18nProvider, localeFromPath } from "./i18n/context.tsx";
-import { api } from "./lib/api.ts";
+import { api, isAccessDenied } from "./lib/api.ts";
+import { AccessDeniedPage } from "./pages/AccessDeniedPage.tsx";
 import { AdminLoginPage } from "./pages/AdminLoginPage.tsx";
 import { DirectoryPage } from "./pages/DirectoryPage.tsx";
 import { EntryPage } from "./pages/EntryPage.tsx";
@@ -63,6 +64,7 @@ export function App() {
   const locale = localeFromPath(location.pathname) as Locale;
   const [workspace, setWorkspace] = useState<Workspace>(initialWorkspace);
   const [admin, setAdmin] = useState(false);
+  const [denied, setDenied] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,8 +72,8 @@ export function App() {
       .then((me) => {
         if (!cancelled) setAdmin(me.admin);
       })
-      .catch(() => {
-        /* keep signed-out seed directory */
+      .catch((error) => {
+        if (!cancelled && isAccessDenied(error)) setDenied(true);
       });
     return () => {
       cancelled = true;
@@ -80,23 +82,24 @@ export function App() {
 
   useEffect(() => {
     let cancelled = false;
+    if (denied) return;
     api.workspace()
       .then((data) => {
         if (cancelled || !data.workspace?.providers?.length) return;
         setWorkspace(normaliseWorkspace({ ...data.workspace, favorites: data.workspace.favorites || [], appliedPacks: data.workspace.appliedPacks || [] }, WORKSPACE_ID));
         if (data.admin) setAdmin(true);
       })
-      .catch(() => {
-        /* keep bundled seed */
+      .catch((error) => {
+        if (!cancelled && isAccessDenied(error)) setDenied(true);
       });
     return () => {
       cancelled = true;
     };
-  }, [admin]);
+  }, [admin, denied]);
 
   return (
     <I18nProvider locale={locale}>
-      <AppRoutes workspace={workspace} setWorkspace={setWorkspace} admin={admin} setAdmin={setAdmin} />
+      {denied ? <AccessDeniedPage /> : <AppRoutes workspace={workspace} setWorkspace={setWorkspace} admin={admin} setAdmin={setAdmin} />}
     </I18nProvider>
   );
 }
